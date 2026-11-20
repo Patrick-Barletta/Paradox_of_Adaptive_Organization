@@ -7,12 +7,12 @@ Three linked arguments about how adaptive systems lose, and can sometimes regain
 | | Paper | Claim in one line |
 |---|---|---|
 | I | [**The Paradox of Adaptive Organization**](papers/Argument_I_Paradox_of_Adaptive_Organization.md) ([PDF](papers/Argument_I_Paradox_of_Adaptive_Organization.pdf)) | A settlement with more food can lose its recovery option first. Two rules that maximize stored food over the next two ticks produce different outcomes when they resolve ties differently. |
-| II | [**On the Necessity of Acceleration**](papers/Argument_II_Necessity_of_Acceleration.md) | Under a deadline, staying viable can require building capabilities faster. Once the required rate exceeds the incumbent rate, waiting along the incumbent path cannot lower it. |
+| II | [**On the Necessity of Acceleration**](papers/Argument_II_Necessity_of_Acceleration.md) ([PDF](papers/Argument_II_Necessity_of_Acceleration.pdf)) | Under a deadline, staying viable can require building capabilities faster. Once the required rate exceeds the incumbent rate, waiting along the incumbent path cannot lower it. |
 | III | [**The Adaptive Escape Problem**](papers/Argument_III_Adaptive_Escape_Problem.md) ([PDF](papers/Argument_III_Adaptive_Escape_Problem.pdf)) | A Lean-checked reduction transfers the binary-horizon planning lower bound to escape. For specific models, feasible paths and proofs of infeasibility distinguish established outcomes from unresolved cases. |
 
 [Climate_Experiment.md](papers/Climate_Experiment.md) applies Arguments I and II to a calibrated, stylized climate model. Its results are conditional on the model and are not a forecast.
 
-[Prior art and positioning](papers/Prior_Art_and_Positioning.md) maps each argument to its closest published precedents, with theorem and figure locators and suggested wording for an introduction. The [BibTeX bibliography](papers/prior_art.bib) can be imported into a reference manager.
+[Prior art and positioning](papers/Prior_Art_and_Positioning.md) maps each argument to its closest published precedents, with theorem and figure locators and suggested wording for an introduction. The [BibTeX bibliography](papers/prior_art.bib) can be imported into a reference manager. The [citation check](papers/Citation_Check.md) records which references and pinpoint locators have been verified against their sources, and which are still to be fixed or checked by hand.
 
 ## What is machine-checked
 
@@ -40,7 +40,8 @@ Paradox/          Lean library: proofs, models, kernels
 Paradox.lean      library root
 *Main.lean, Report.lean, ExperimentE.lean
                   executables (targets: report, experimentE, climate, argII, argIII)
-papers/           the three arguments and the climate experiment write-up
+papers/           the three arguments (Markdown and PDF), the climate experiment write-up,
+                  prior art, bibliography and citation check
 results/          saved output of every executable, plus the build and run log
 python/           Python reference for the climate model and Argument II
 python/toy/       Python reference for the settlement model (I.3.10) and Argument III
