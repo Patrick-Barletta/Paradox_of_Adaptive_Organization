@@ -1,0 +1,15 @@
+# Lean / Lake build output
+.lake/
+
+# Python
+__pycache__/
+*.pyc
+
+# Local leftovers that are not part of the repository
+_archive/
+*.zip
+
+# Editor and OS files
+.vscode/
+.DS_Store
+Thumbs.db

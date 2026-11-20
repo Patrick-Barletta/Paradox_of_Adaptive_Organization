@@ -1,0 +1,51 @@
+States enumerated: 17136; nesting violations: 0; severity counts: [4992, 1957, 8625, 1178, 384]
+
+sigma=0 (viable as-is): t=11, F=16, P=0, farm=no, generalists
+  witness in K_fixed (verified):
+    t=11 F=16 P=0  ->  3 forage
+    t=12 F=13 P=0  ->  3 forage
+    t=13 F=10 P=0  ->  3 forage
+    t=14 F= 7 P=0  ->  3 forage
+    t=15 F= 4 P=0  ->  3 forage
+
+sigma=1 (operational mismatch): t=11, F=9, P=0, farm=yes, generalists
+  witness in K_policy (verified):
+    t=11 F= 9 P=0  ->  idle
+    t=12 F= 6 P=0  ->  idle
+    t=13 F= 3 P=0  ->  2 farm
+    t=14 F= 0 P=4  ->  1 farm
+    t=15 F= 1 P=2  ->  idle
+  excluded by exhaustive enumeration: K_fixed
+
+sigma=2 (recoverable org. mismatch): t=11, F=9, P=0, farm=no, generalists
+  witness in K_adapt (verified):
+    t=11 F= 9 P=0  ->  idle
+    t=12 F= 6 P=0  ->  2 train
+    t=13 F= 3 P=0  ->  2 farm
+    t=14 F= 0 P=4  ->  1 farm
+    t=15 F= 1 P=2  ->  idle
+  excluded by exhaustive enumeration: K_fixed, K_policy
+
+sigma=3 (structural lock-in): t=11, F=9, P=0, farm=no, specialists
+  witness in K_phys (verified):
+    t=11 F= 9 P=0  ->  idle
+    t=12 F= 6 P=0  ->  idle
+    t=13 F= 3 P=0  ->  2 farm
+    t=14 F= 0 P=4  ->  1 farm
+    t=15 F= 1 P=2  ->  idle
+  excluded by exhaustive enumeration: K_fixed, K_policy, K_adapt
+
+sigma=4 (physical nonviability): t=11, F=2, P=0, farm=no, generalists
+  excluded by exhaustive enumeration: K_fixed, K_policy, K_adapt, K_phys
+
+Paradox pair: common s0 = (t=0, F=0, P=0, no farm, generalists).
+History B specializes at t=0 (takes effect from t=1); both then run the incumbent.
+  A generalist: stock [0, 3, 6, 9, 12, 15, 18, 18, 18, 15, 12, 9, 6, 3, 0]
+    severity [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 4]
+    gross harvest 42, discarded at cap 0, useful 42; t*_policy=-1, t*_adapt=12, t*_phys=13, t_fail=15, Delta_lock=1
+  B specialize at t=0: stock [0, 3, 9, 15, 20, 20, 20, 20, 20, 17, 14, 11, 8, 5, 2]
+    severity [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 4]
+    gross harvest 63, discarded at cap 19, useful 44; t*_policy=-1, t*_adapt=10, t*_phys=13, t_fail=15, Delta_lock=3
+
+Proposition 4 check (same (O,q), richer (F,P)): 1362312 pairs, 0 violations
+Fingerprint check: 22484 strong-paradox state pairs, 0 sharing (O,q)

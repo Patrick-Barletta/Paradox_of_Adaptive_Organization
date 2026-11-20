@@ -1,0 +1,81 @@
+Sweep 1 (rate window / points of no return): 324 configurations -> climate_window.csv
+Capacity-building point of no return exact over all schedules (certificate = constant-rate) in 324 of 324
+
+Headline (capacity latency 2 yr, max scale-up 30%/yr): last start year that still works
+  cost psi  spend phi  target  TCRE     sigma(2027)  policy-only  build capacity  capacity-unconstrained  lock-in yrs  r_min(2027)
+  0.500000       1.500000        1.7C    central  4            never        never            never      -            none
+  0.500000       1.500000        1.7C    robust  4            never        never            never      -            none
+  0.500000       1.500000        2.0C    central  2            never        2037            2041      4            6%
+  0.500000       1.500000        2.0C    robust  3            never        never            2031      5            44%
+  0.500000       2.000000        1.7C    central  3            never        never            2028      2            none
+  0.500000       2.000000        1.7C    robust  4            never        never            never      -            none
+  0.500000       2.000000        2.0C    central  2            never        2040            2045      5            5%
+  0.500000       2.000000        2.0C    robust  2            never        2029            2035      6            17%
+  0.500000       3.000000        1.7C    central  3            never        never            2032      6            55%
+  0.500000       3.000000        1.7C    robust  3            never        never            2028      2            none
+  0.500000       3.000000        2.0C    central  2            never        2043            2048      5            5%
+  0.500000       3.000000        2.0C    robust  2            never        2032            2038      6            13%
+  0.750000       1.500000        1.7C    central  4            never        never            never      -            none
+  0.750000       1.500000        1.7C    robust  4            never        never            never      -            none
+  0.750000       1.500000        2.0C    central  2            never        2029            2033      4            13%
+  0.750000       1.500000        2.0C    robust  4            never        never            never      -            none
+  0.750000       2.000000        1.7C    central  4            never        never            never      -            none
+  0.750000       2.000000        1.7C    robust  4            never        never            never      -            none
+  0.750000       2.000000        2.0C    central  2            never        2035            2040      5            6%
+  0.750000       2.000000        2.0C    robust  3            never        never            2029      3            none
+  0.750000       3.000000        1.7C    central  3            never        never            2028      2            none
+  0.750000       3.000000        1.7C    robust  4            never        never            never      -            none
+  0.750000       3.000000        2.0C    central  2            never        2040            2045      5            5%
+  0.750000       3.000000        2.0C    robust  2            never        2029            2035      6            17%
+  1.000000       1.500000        1.7C    central  4            never        never            never      -            none
+  1.000000       1.500000        1.7C    robust  4            never        never            never      -            none
+  1.000000       1.500000        2.0C    central  4            never        never            never      -            none
+  1.000000       1.500000        2.0C    robust  4            never        never            never      -            none
+  1.000000       2.000000        1.7C    central  4            never        never            never      -            none
+  1.000000       2.000000        1.7C    robust  4            never        never            never      -            none
+  1.000000       2.000000        2.0C    central  2            never        2029            2033      4            13%
+  1.000000       2.000000        2.0C    robust  4            never        never            never      -            none
+  1.000000       3.000000        1.7C    central  4            never        never            never      -            none
+  1.000000       3.000000        1.7C    robust  4            never        never            never      -            none
+  1.000000       3.000000        2.0C    central  2            never        2037            2041      4            6%
+  1.000000       3.000000        2.0C    robust  3            never        never            2031      5            44%
+
+Sweep 2 (paradox): 288 configurations -> climate_paradox.csv
+
+Paradox at 2.0C, spend phi = 2. J = consumption proxy ($T) from 2027 up to the myopic point of no return
+  cost psi  TCRE     carbon $/t  builder window  myopic window  J builder  J myopic  myopic ahead until its window closes
+  0.500000  central  0.000000     2087            2053           14.160000      20.700000     1
+  0.500000  central  25.000000     2087            2062           12.160000      28.930000     1
+  0.500000  central  50.000000     2087            2075           9.180000      34.140000     1
+  0.500000  central  75.000000     2087            2085           6.840000      25.200000     1
+  0.500000  central  100.000000     2087            2087           -      -     window never lost
+  0.500000  central  150.000000     2087            2087           -      -     window never lost
+  0.500000  central  200.000000     2087            2087           -      -     window never lost
+  0.500000  central  300.000000     2087            2087           -      -     window never lost
+  0.500000  robust  0.000000     2087            2042           8.690000      8.770000     1
+  0.500000  robust  25.000000     2087            2046           12.080000      12.540000     1
+  0.500000  robust  50.000000     2087            2052           14.270000      16.420000     1
+  0.500000  robust  75.000000     2087            2062           12.160000      17.740000     1
+  0.500000  robust  100.000000     2087            2087           -      -     window never lost
+  0.500000  robust  150.000000     2087            2087           -      -     window never lost
+  0.500000  robust  200.000000     2087            2087           -      -     window never lost
+  0.500000  robust  300.000000     2087            2087           -      -     window never lost
+  0.750000  central  0.000000     2087            2042           3.920000      4.720000     1
+  0.750000  central  25.000000     2087            2046           3.700000      6.150000     1
+  0.750000  central  50.000000     2087            2050           1.340000      5.870000     1
+  0.750000  central  75.000000     2087            2055           -5.550000      3.070000     1
+  0.750000  central  100.000000     2087            2061           -21.260000      -4.260000     1
+  0.750000  central  150.000000     2087            2080           -85.400000      -51.370000     1
+  0.750000  central  200.000000     2087            2087           -      -     window never lost
+  0.750000  central  300.000000     2087            2087           -      -     window never lost
+  1.000000  central  0.000000     2087            2035           0.720000      0.740000     1
+  1.000000  central  25.000000     2087            2037           1.020000      1.080000     1
+  1.000000  central  50.000000     2087            2040           0.940000      1.130000     1
+  1.000000  central  75.000000     2087            2043           -0.030000      0.270000     1
+  1.000000  central  100.000000     2087            2046           -2.180000      -1.780000     1
+  1.000000  central  150.000000     2087            2053           -13.220000      -12.160000     1
+  1.000000  central  200.000000     2087            2061           -39.510000      -36.160000     1
+  1.000000  central  300.000000     2087            2087           -      -     window never lost
+
+Builder path viable in 88 of 288 configurations; myopic path loses the window in 58 of them;
+in 58 of those 58, the price-cutoff rule's cumulative consumption score equals or exceeds the builder's at every annual prefix through its last viable start

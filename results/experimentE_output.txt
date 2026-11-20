@@ -1,0 +1,68 @@
+Experiment E: 6000 parameter settings (generalist retraining fixed at 2 worker-ticks)
+  prescribed pair (stock dominance + earlier window close): 1581 (  26.4%)
+  strong pair (richer B locked in while A can reorganize):              1581 (  26.4%)
+  gross-only paradox (window closes earlier, no storage dominance):      0 (   0.0%)
+  sanity: settings with rSpec ≤ rGen = 2: 1200; paradox in 0, strong in 0
+
+Two-tick stock decisions: settings with each outcome
+  tie priority   entered lock-in   survived to T   strong pair vs generalist A
+  foraging       4940   1060   1581
+  training       0   6000   0
+  forage priority enters lock-in and training priority survives: 4940
+
+By specialist retraining cost rSpec (generalists: 2)
+  value   settings   pairwise tradeoff   strong pair   gross-only
+  1	  600	        0.0%	          0.0%	      0.0%
+  2	  600	        0.0%	          0.0%	      0.0%
+  3	  600	        0.0%	          0.0%	      0.0%
+  4	  600	       27.3%	         27.3%	      0.0%
+  5	  600	       27.3%	         27.3%	      0.0%
+  6	  600	       27.3%	         27.3%	      0.0%
+  7	  600	       41.7%	         41.7%	      0.0%
+  8	  600	       41.7%	         41.7%	      0.0%
+  9	  600	       41.7%	         41.7%	      0.0%
+  10	  600	       56.5%	         56.5%	      0.0%
+
+By specialization bonus
+  value   settings   pairwise tradeoff   strong pair   gross-only
+  1	  3000	       26.6%	         26.6%	      0.0%
+  2	  3000	       26.1%	         26.1%	      0.0%
+
+By storage capacity fmax
+  value   settings   pairwise tradeoff   strong pair   gross-only
+  12	  1200	       61.3%	         61.3%	      0.0%
+  16	  1200	       44.0%	         44.0%	      0.0%
+  20	  1200	       24.3%	         24.3%	      0.0%
+  24	  1200	        1.8%	          1.8%	      0.0%
+  30	  1200	        0.4%	          0.4%	      0.0%
+
+By horizon T
+  value   settings   pairwise tradeoff   strong pair   gross-only
+  12	  1200	       18.6%	         18.6%	      0.0%
+  14	  1200	       27.1%	         27.1%	      0.0%
+  16	  1200	       28.6%	         28.6%	      0.0%
+  18	  1200	       28.8%	         28.8%	      0.0%
+  20	  1200	       28.8%	         28.8%	      0.0%
+
+By ticks of full wild yield before decline
+  value   settings   pairwise tradeoff   strong pair   gross-only
+  3	  1500	       11.0%	         11.0%	      0.0%
+  4	  1500	       23.9%	         23.9%	      0.0%
+  5	  1500	       34.0%	         34.0%	      0.0%
+  6	  1500	       36.5%	         36.5%	      0.0%
+
+By ticks of half wild yield
+  value   settings   pairwise tradeoff   strong pair   gross-only
+  0	  2000	       28.4%	         28.4%	      0.0%
+  1	  2000	       26.5%	         26.5%	      0.0%
+  2	  2000	       24.2%	         24.2%	      0.0%
+
+rSpec ≥ 6 only, by storage capacity
+  value   settings   pairwise tradeoff   strong pair   gross-only
+  12	  600	       93.3%	         93.3%	      0.0%
+  16	  600	       70.0%	         70.0%	      0.0%
+  20	  600	       41.2%	         41.2%	      0.0%
+  24	  600	        3.5%	          3.5%	      0.0%
+  30	  600	        0.8%	          0.8%	      0.0%
+
+Per-setting results written to experimentE_results.csv

@@ -1,0 +1,25 @@
+name = "paradox"
+defaultTargets = ["Paradox", "report", "experimentE", "climate", "argII", "argIII"]
+
+[[lean_lib]]
+name = "Paradox"
+
+[[lean_exe]]
+name = "report"
+root = "Report"
+
+[[lean_exe]]
+name = "experimentE"
+root = "ExperimentE"
+
+[[lean_exe]]
+name = "climate"
+root = "ClimateMain"
+
+[[lean_exe]]
+name = "argII"
+root = "ArgIIMain"
+
+[[lean_exe]]
+name = "argIII"
+root = "ArgIIIMain"

@@ -1,0 +1,85 @@
+E-II.2 dilemma (2.0C central, psi 0.5, phi 2)
+DIL ccap=0.300000 program=stop when not binding rmin=5% rmax=100% close=2040
+DIL ccap=0.300000 program=never stop rmin=5% rmax=13% close=2038
+DIL ccap=1.000000 program=stop when not binding rmin=5% rmax=100% close=2040
+DIL ccap=1.000000 program=never stop rmin=5% rmax=10% close=2036
+DIL ccap=3.000000 program=stop when not binding rmin=5% rmax=63% close=2040
+DIL ccap=3.000000 program=never stop rmin=5% rmax=8% close=2034
+E-II.3 AI: capacity-building closing year (2.0C central, phi 2)
+AI psi=0.500000 scen=none cut=0.000000 close=2040 cert=2040
+AI psi=0.500000 scen=none cut=0.025000 close=2040 cert=2040
+AI psi=0.500000 scen=none cut=0.050000 close=2041 cert=2041
+AI psi=0.500000 scen=none cut=0.100000 close=2041 cert=2041
+AI psi=0.500000 scen=none cut=0.200000 close=2042 cert=2042
+AI psi=0.500000 scen=IEA-base-like cut=0.000000 close=2040 cert=2040
+AI psi=0.500000 scen=IEA-base-like cut=0.025000 close=2040 cert=2040
+AI psi=0.500000 scen=IEA-base-like cut=0.050000 close=2040 cert=2040
+AI psi=0.500000 scen=IEA-base-like cut=0.100000 close=2041 cert=2041
+AI psi=0.500000 scen=IEA-base-like cut=0.200000 close=2041 cert=2041
+AI psi=0.500000 scen=high cut=0.000000 close=2039 cert=2039
+AI psi=0.500000 scen=high cut=0.025000 close=2039 cert=2039
+AI psi=0.500000 scen=high cut=0.050000 close=2039 cert=2039
+AI psi=0.500000 scen=high cut=0.100000 close=2040 cert=2040
+AI psi=0.500000 scen=high cut=0.200000 close=2040 cert=2040
+AI psi=0.500000 scen=extreme cut=0.000000 close=2037 cert=2037
+AI psi=0.500000 scen=extreme cut=0.025000 close=2037 cert=2037
+AI psi=0.500000 scen=extreme cut=0.050000 close=2037 cert=2037
+AI psi=0.500000 scen=extreme cut=0.100000 close=2038 cert=2038
+AI psi=0.500000 scen=extreme cut=0.200000 close=2039 cert=2039
+AI psi=0.750000 scen=none cut=0.000000 close=2035 cert=2035
+AI psi=0.750000 scen=none cut=0.025000 close=2036 cert=2036
+AI psi=0.750000 scen=none cut=0.050000 close=2036 cert=2036
+AI psi=0.750000 scen=none cut=0.100000 close=2037 cert=2037
+AI psi=0.750000 scen=none cut=0.200000 close=2038 cert=2038
+AI psi=0.750000 scen=IEA-base-like cut=0.000000 close=2035 cert=2035
+AI psi=0.750000 scen=IEA-base-like cut=0.025000 close=2035 cert=2035
+AI psi=0.750000 scen=IEA-base-like cut=0.050000 close=2036 cert=2036
+AI psi=0.750000 scen=IEA-base-like cut=0.100000 close=2037 cert=2037
+AI psi=0.750000 scen=IEA-base-like cut=0.200000 close=2038 cert=2038
+AI psi=0.750000 scen=high cut=0.000000 close=2034 cert=2034
+AI psi=0.750000 scen=high cut=0.025000 close=2034 cert=2034
+AI psi=0.750000 scen=high cut=0.050000 close=2035 cert=2035
+AI psi=0.750000 scen=high cut=0.100000 close=2035 cert=2035
+AI psi=0.750000 scen=high cut=0.200000 close=2037 cert=2037
+AI psi=0.750000 scen=extreme cut=0.000000 close=2032 cert=2032
+AI psi=0.750000 scen=extreme cut=0.025000 close=2032 cert=2032
+AI psi=0.750000 scen=extreme cut=0.050000 close=2033 cert=2033
+AI psi=0.750000 scen=extreme cut=0.100000 close=2034 cert=2034
+AI psi=0.750000 scen=extreme cut=0.200000 close=2035 cert=2035
+MONO sequences=18 violations=0
+RATE year=2027 maxExcluded=4% minWitness=5%
+RATE year=2030 maxExcluded=5% minWitness=6%
+RATE year=2033 maxExcluded=7% minWitness=8%
+RATE year=2035 maxExcluded=8% minWitness=9%
+RATE year=2037 maxExcluded=11% minWitness=12%
+RATE year=2038 maxExcluded=14% minWitness=15%
+RATE year=2039 maxExcluded=17% minWitness=18%
+RATE year=2040 maxExcluded=23% minWitness=24%
+RATE year=2041 maxExcluded=33% minWitness=34%
+RATE year=2042 maxExcluded=56% minWitness=57%
+RATE year=2043 maxExcluded=100% minWitness=none
+E-II.5 constraint ablation (2.0C, gmax 0.3, L 2)
+ABL central psi=0.500000 phi=1.500000 both=2037/2037/2041 budgetonly=2037/2037/2041 reason=1
+ABL central psi=0.500000 phi=2.000000 both=2040/2040/2045 budgetonly=2040/2040/2045 reason=1
+ABL central psi=0.500000 phi=3.000000 both=2043/2043/2048 budgetonly=2043/2043/2048 reason=1
+ABL central psi=0.750000 phi=1.500000 both=2029/2029/2033 budgetonly=2029/2029/2033 reason=1
+ABL central psi=0.750000 phi=2.000000 both=2035/2035/2040 budgetonly=2035/2035/2040 reason=1
+ABL central psi=0.750000 phi=3.000000 both=2040/2040/2045 budgetonly=2040/2040/2045 reason=1
+ABL central psi=1.000000 phi=1.500000 both=never/never/never budgetonly=never/never/never reason=1
+ABL central psi=1.000000 phi=2.000000 both=2029/2029/2033 budgetonly=2029/2029/2033 reason=1
+ABL central psi=1.000000 phi=3.000000 both=2037/2037/2041 budgetonly=2037/2037/2041 reason=1
+ABL robust psi=0.500000 phi=1.500000 both=never/never/2031 budgetonly=never/never/2031 reason=1
+ABL robust psi=0.500000 phi=2.000000 both=2029/2029/2035 budgetonly=2029/2029/2035 reason=1
+ABL robust psi=0.500000 phi=3.000000 both=2032/2032/2038 budgetonly=2032/2032/2038 reason=1
+ABL robust psi=0.750000 phi=1.500000 both=never/never/never budgetonly=never/never/never reason=1
+ABL robust psi=0.750000 phi=2.000000 both=never/never/2029 budgetonly=never/never/2029 reason=1
+ABL robust psi=0.750000 phi=3.000000 both=2029/2029/2035 budgetonly=2029/2029/2035 reason=1
+ABL robust psi=1.000000 phi=1.500000 both=never/never/never budgetonly=never/never/never reason=1
+ABL robust psi=1.000000 phi=2.000000 both=never/never/never budgetonly=never/never/never reason=1
+ABL robust psi=1.000000 phi=3.000000 both=never/never/2031 budgetonly=never/never/2031 reason=1
+THR psi=0.500000 requireNZ=true threshold=100.000000
+THR psi=0.500000 requireNZ=false threshold=75.000000
+THR psi=0.750000 requireNZ=true threshold=200.000000
+THR psi=0.750000 requireNZ=false threshold=175.000000
+THR psi=1.000000 requireNZ=true threshold=300.000000
+THR psi=1.000000 requireNZ=false threshold=300.000000

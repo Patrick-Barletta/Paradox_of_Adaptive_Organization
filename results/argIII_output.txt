@@ -1,0 +1,14 @@
+III.A total blackout, no black-start: restored 0/6: []
+III.A add a third generator (more redundancy): restored 0/7: []
+III.A battery-backed telecom (seed): restored 1/7: [telecom_batt]
+III.A battery telecom feeds telecom: restored 2/7: [telecom, telecom_batt]
+III.A black-start hydro unit (seed): restored 7/7: [control, fuel, gen1, gen2, hydro_bs, power, telecom]
+III.A minimum seed set (pure AND graph): size 1; options [[gen1], [power]]
+III.B cert=phys budget=1: witness 9906 excluded 384 unknown 6846 unknown-by-sigma [0, 514, 5154, 1178, 0] wrong 0
+III.B cert=phys budget=10: witness 13788 excluded 384 unknown 2964 unknown-by-sigma [0, 58, 1728, 1178, 0] wrong 0
+III.B cert=phys budget=100: witness 15064 excluded 384 unknown 1688 unknown-by-sigma [0, 2, 508, 1178, 0] wrong 0
+III.B cert=phys budget=1000: witness 15373 excluded 384 unknown 1379 unknown-by-sigma [0, 0, 201, 1178, 0] wrong 0
+III.B cert=relax budget=1: witness 9901 excluded 1470 unknown 5765 unknown-by-sigma [0, 525, 5148, 92, 0] wrong 0
+III.B cert=relax budget=10: witness 13752 excluded 1470 unknown 1914 unknown-by-sigma [0, 64, 1758, 92, 0] wrong 0
+III.B cert=relax budget=100: witness 15060 excluded 1470 unknown 606 unknown-by-sigma [0, 2, 512, 92, 0] wrong 0
+III.B cert=relax budget=1000: witness 15374 excluded 1470 unknown 292 unknown-by-sigma [0, 0, 200, 92, 0] wrong 0
