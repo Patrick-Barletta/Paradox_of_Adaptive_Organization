@@ -1,0 +1,76 @@
+Argument V: structural concessions and calm-period erosion
+Sweep A: structural concessions
+  clean fix: cost 5, output 4, 1 dead tick per forced switch; concession: cost 1, output 3, 2 dead ticks; upkeep 2; reserves capped at 8
+  forced switches at ticks P, 2P, ...; starting reserves r0 = 1..10, horizons T = 4..24
+  crossover T*: largest horizon at which the concession is viable (all = through 24, none = not even 4)
+CROSSOVER r0 \ P    3    4    5    6    7    8
+CROSSOVER r0=1       4    9   16  all  all  all
+CROSSOVER r0=2       6    9   21  all  all  all
+CROSSOVER r0=3       7   13  all  all  all  all
+CROSSOVER r0=4       7   13  all  all  all  all
+CROSSOVER r0=5       9   17  all  all  all  all
+CROSSOVER r0=6      10   17  all  all  all  all
+CROSSOVER r0=7      10   17  all  all  all  all
+CROSSOVER r0=8      10   17  all  all  all  all
+CROSSOVER r0=9      10   17  all  all  all  all
+CROSSOVER r0=10     10   17  all  all  all  all
+REGIMES concession only 369, both 629, clean only 127, neither 135 (of 1260 cells)
+SCAR r0=5 P=5: 18 ticks [1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19, 21, 22]
+SCAR r0=5 P=6: 6 ticks [8, 9, 10, 14, 15, 16]
+SCAR r0=5 P=7: 8 ticks [9, 10, 11, 12, 16, 17, 18, 19]
+SCAR r0=6 P=5: 18 ticks [1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19, 21, 22]
+SCAR r0=6 P=6: 6 ticks [8, 9, 10, 14, 15, 16]
+SCAR r0=6 P=7: 8 ticks [9, 10, 11, 12, 16, 17, 18, 19]
+SCAR r0=7 P=5: 19 ticks [0, 1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19, 21, 22]
+SCAR r0=7 P=6: 6 ticks [8, 9, 10, 14, 15, 16]
+SCAR r0=7 P=7: 8 ticks [9, 10, 11, 12, 16, 17, 18, 19]
+SCAR r0=8 P=5: 19 ticks [0, 1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19, 21, 22]
+SCAR r0=8 P=6: 6 ticks [8, 9, 10, 14, 15, 16]
+SCAR r0=8 P=7: 8 ticks [9, 10, 11, 12, 16, 17, 18, 19]
+SCAR r0=9 P=5: 18 ticks [1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19, 21, 22]
+SCAR r0=9 P=6: 6 ticks [8, 9, 10, 14, 15, 16]
+SCAR r0=9 P=7: 8 ticks [9, 10, 11, 12, 16, 17, 18, 19]
+SCAR r0=10 P=5: 18 ticks [1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19, 21, 22]
+SCAR r0=10 P=6: 6 ticks [8, 9, 10, 14, 15, 16]
+SCAR r0=10 P=7: 8 ticks [9, 10, 11, 12, 16, 17, 18, 19]
+SCAR summary: 18 of 24 (r0, P) cells where both survive to 24 have a nonempty scar window
+Sweep B: calm-period erosion
+  shocks need reserves >= 4 and remove 4; 4 shocks, each after L calm ticks; a calm tick earns 1; reserves start at 6
+  myopic floor 0; static floor 6; adaptive floor resets to 6 after a shock, drops by 1 every k calm ticks
+  survival by calm interval L = 1..25 (S = survives all shocks, x = fails):
+SURVIVAL myopic       xxxxxxxxxxxxxxxxxxxxxxxxx
+SURVIVAL static       xxxSSSSSSSSSSSSSSSSSSSSSS
+SURVIVAL adaptive k=1 xxxxxxxxxxxxxxxxxxxxxxxxx
+SURVIVAL adaptive k=2 xxxSSxxxxxxxxxxxxxxxxxxxx
+SURVIVAL adaptive k=3 xxxSSSSSxxxxxxxxxxxxxxxxx
+SURVIVAL adaptive k=4 xxxSSSSSSSSxxxxxxxxxxxxxx
+SURVIVAL adaptive k=5 xxxSSSSSSSSSSSxxxxxxxxxxx
+SURVIVAL adaptive k=6 xxxSSSSSSSSSSSSSSxxxxxxxx
+SURVIVAL adaptive k=7 xxxSSSSSSSSSSSSSSSSSxxxxx
+SURVIVAL adaptive k=8 xxxSSSSSSSSSSSSSSSSSSSSxx
+THRESHOLD k=1: adaptive survives L in -..-; L*=4; theorem bound k*(mMax-mReq+1)=3
+THRESHOLD k=2: adaptive survives L in 4..5; L*=6; theorem bound k*(mMax-mReq+1)=6
+THRESHOLD k=3: adaptive survives L in 4..8; L*=9; theorem bound k*(mMax-mReq+1)=9
+THRESHOLD k=4: adaptive survives L in 4..11; L*=12; theorem bound k*(mMax-mReq+1)=12
+THRESHOLD k=5: adaptive survives L in 4..14; L*=15; theorem bound k*(mMax-mReq+1)=15
+THRESHOLD k=6: adaptive survives L in 4..17; L*=18; theorem bound k*(mMax-mReq+1)=18
+THRESHOLD k=7: adaptive survives L in 4..20; L*=21; theorem bound k*(mMax-mReq+1)=21
+THRESHOLD k=8: adaptive survives L in 4..23; L*=24; theorem bound k*(mMax-mReq+1)=24
+OUTPUT k=2 (myopic/static/adaptive cumulative output; * = adaptive fails):
+OUTPUT k=2 L=2: 8/2/3*
+OUTPUT k=2 L=4: 10/4/6
+OUTPUT k=2 L=6: 12/12/9*
+OUTPUT k=2 L=8: 14/20/12*
+OUTPUT k=2 L=10: 16/28/15*
+OUTPUT k=2 L=12: 18/36/18*
+OUTPUT k=2 L=16: 22/52/22*
+OUTPUT k=2 L=24: 30/84/30*
+OUTPUT k=4 (myopic/static/adaptive cumulative output; * = adaptive fails):
+OUTPUT k=4 L=2: 8/2/2*
+OUTPUT k=4 L=4: 10/4/5
+OUTPUT k=4 L=6: 12/12/13
+OUTPUT k=4 L=8: 14/20/22
+OUTPUT k=4 L=10: 16/28/30
+OUTPUT k=4 L=12: 18/36/15*
+OUTPUT k=4 L=16: 22/52/20*
+OUTPUT k=4 L=24: 30/84/30*

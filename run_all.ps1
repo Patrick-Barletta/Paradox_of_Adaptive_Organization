@@ -18,7 +18,7 @@ $bin = Join-Path $PSScriptRoot ".lake\build\bin"
 New-Item -ItemType Directory -Force results | Out-Null
 Push-Location results
 try {
-    foreach ($exe in "report", "climate", "argII", "argIII", "experimentE", "friction") {
+    foreach ($exe in "report", "climate", "argII", "argIII", "experimentE", "friction", "argV") {
         cmd /c "`"$bin\$exe.exe`" > ${exe}_output.txt"
         if ($LASTEXITCODE -ne 0) { Write-Error "$exe failed with exit code $LASTEXITCODE"; exit $LASTEXITCODE }
     }

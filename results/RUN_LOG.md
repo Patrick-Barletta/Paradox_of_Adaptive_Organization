@@ -1,5 +1,16 @@
 # Build and verification log
 
+## Argument V (concessions and erosion), 22 November 2026
+
+Windows, Lean 4.15.0. Added `Paradox/Concession.lean` (theory), `Paradox/ConcessionModel.lean` and `ArgVMain.lean` (target `argV`) and `python/toy/argV.py`.
+
+| Verification | Result |
+|---|---|
+| Axioms | `viab_V` and `clean_viab`: none. `viab_shorten`, `horizon_antitone`, `clean_fail`, `conc_viab`, `conc_fail`, `concession_crossover`, `calm_floor`, `calm_erosion_fatal`: `propext`, `Quot.sound`. No `sorry`, no `native_decide`. `Paradox/ConcessionModel.lean` is computational and contains no theorems. |
+| No regression | `.\run_all.ps1` rebuilt everything. All 11 committed outputs are byte-identical (SHA-256). |
+| New output | `argV_output.txt` (76 lines). Sweep A: crossover horizons from 4 to beyond 24 ticks; 369 concession-only, 629 both, 127 clean-only and 135 neither cells of 1,260; scar windows in 18 of the 24 cells where both choices survive to 24. Sweep B: the adaptive shield survives calm intervals 4 to 3k − 1 and fails from L* = 3k, equal to Theorem V.3's bound, for k = 2..8. |
+| Python comparisons | `python python/crosscheck_all.py`: exit 0 in 497 s, zero mismatches in all 11 comparisons, including the new `argV` check. |
+
 ## Seed undervaluation (W3) and acceleration costs (E-II.6), 22 November 2026
 
 Windows, Lean 4.15.0. Added the W3 lemmas to `Paradox/Theory.lean`, optional acceleration costs to `Paradox/Climate.lean` and `python/climate.py` (off by default), and the `argII ramp` option.

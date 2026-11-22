@@ -5,3 +5,5 @@ import Paradox.Certified
 import Paradox.Climate
 import Paradox.Escape
 import Paradox.Timed
+import Paradox.Concession
+import Paradox.ConcessionModel

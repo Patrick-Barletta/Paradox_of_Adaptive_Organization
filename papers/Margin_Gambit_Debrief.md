@@ -162,14 +162,14 @@ def capV (s : Nat) : Prop := s ≠ 2
 
 *Done:* `Theory.lean` proves these with a natural-number ceiling (`cap_not_nested`, `cap_kernel_shrinks` for every `t < T`, and `rate_upward_needs_nesting`), using only `propext` and `Quot.sound`. The caveat is not needed for Proposition 1: in Argument I held capabilities are part of the state `O`, so reacting to them is ordinary state-dependent dynamics.
 
-### W5. The value of organizational structure depends on the horizon. *Status: implicit.*
+### W5. The value of organizational structure depends on the horizon. *Status: resolved (2026-11-22) by Argument V: Theorems V.1–V.2 in `Paradox/Concession.lean` and the exact crossover sweep (`argV`, Sweep A).*
 
 - **Exposed by:** tick 9. A traded permanent organizational capacity (output cap, halved rebuild rate, permanent switch delay) for the removal of an external deadline. The concession is dominant with 10 ticks left and becomes dominated as $`T`$ grows.
 - **In the drafts:** finite-horizon kernels $`\mathcal{K}_k(t)`$ and infinite-horizon invariance are both present. §III.9 states that fast revision authority is itself a capability whose latency counts against margin.
 - **Weakness:** there is no result for when degrading organization to protect resources is rational. This is the inverse of the Argument I paradox: Argument I degrades future adaptability to chase output, while here adaptability is sacrificed for survival.
 - **Fix:** a crossover horizon $`T^*`$, scaling with the expected frequency of forced policy switches times the per-switch latency cost. Below $`T^*`$ the concession is dominant, and above it dominated. The post-game scar check (fatal window on ticks 10–11, cleared at tick 12) is a worked instance.
 
-### W6. Risk appetite and the objective shift during the run. *Status: genuine gap.*
+### W6. Risk appetite and the objective shift during the run. *Status: partly resolved (2026-11-22) by Argument V: calm-period margin erosion is proved (Theorem V.3, `calm_erosion_fatal`) and swept exactly (`argV`, Sweep B), confirming the predicted second-order cycle. Objective switching (winning → surviving) remains open.*
 
 - **Exposed by:** A's floor policy across the game.
   - **Before any shock (ticks 0–1):** A ran at 0.0 reserves twice. The rules were fixed and the solver proved it safe.
@@ -196,8 +196,8 @@ def capV (s : Nat) : Prop := s ≠ 2
 2. ~~**W4 counterexample (capability-indexed reactions).**~~ Done 2026-11-22 (see W4).
 3. ~~**W1 condition.**~~ Done 2026-11-22: skill decay and a training cost were added to the settlement model, with a viability shield and "acquire first" rules (see W1).
 4. **W2 extension.** Formulate the two-player shared-burden kernel game. Derive the asymmetric-deadline incentive and the self-inflicted-deadline result.
-5. **W5 result.** Derive the crossover horizon for structural concessions.
-6. **W6 layer.** Add adaptive risk posture and objective switching to the decision rules. This is the largest scope and is possibly a separate paper.
+5. ~~**W5 result.**~~ Done 2026-11-22 as Argument V (see W5).
+6. **W6 layer.** Adaptive risk posture: done 2026-11-22 as Argument V (calm-period erosion, see W6). Objective switching remains open.
 
 ---
 
