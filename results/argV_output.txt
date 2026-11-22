@@ -1,8 +1,8 @@
-Argument V: structural concessions and calm-period erosion
+Argument V: structural concessions and calm-period erosion, in the four control classes of I.3
 Sweep A: structural concessions
-  clean fix: cost 5, output 4, 1 dead tick per forced switch; concession: cost 1, output 3, 2 dead ticks; upkeep 2; reserves capped at 8
-  forced switches at ticks P, 2P, ...; starting reserves r0 = 1..10, horizons T = 4..24
-  crossover T*: largest horizon at which the concession is viable (all = through 24, none = not even 4)
+  state (x, O, pi, q): reserves; scarred; policy aligned; obligation pending, implementation move in flight; clean fix cost 5, output 4; concession cost 1, output 3 and a latency-1 implementation move per realignment; upkeep 2; reserves capped at 8
+  forced switches at operating ticks P, 2P, ...; starting reserves r0 = 1..10, horizons T = 4..24
+  crossover T*: largest horizon at which the post-concession state is in the policy kernel (all = through 24, none = not even 4)
 CROSSOVER r0 \ P    3    4    5    6    7    8
 CROSSOVER r0=1       4    9   16  all  all  all
 CROSSOVER r0=2       6    9   21  all  all  all
@@ -34,9 +34,73 @@ SCAR r0=10 P=5: 18 ticks [1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19
 SCAR r0=10 P=6: 6 ticks [8, 9, 10, 14, 15, 16]
 SCAR r0=10 P=7: 8 ticks [9, 10, 11, 12, 16, 17, 18, 19]
 SCAR summary: 18 of 24 (r0, P) cells where both survive to 24 have a nonempty scar window
+NESTING fixed <= policy <= adapt <= phys at the decision state and the post-concession state, every (r0, P, T): 7560 checks, 0 violations
+SEVERITY decision state (obligation pending): sigma 0: 0, sigma 1: 0, sigma 2: 1136, sigma 3: 124, sigma 4: 0 (of 1260)
+SEVERITY post-concession state: sigma 0: 368, sigma 1: 630, sigma 2: 138, sigma 3: 124, sigma 4: 0 (of 1260)
+SHIFT post-concession severity by horizon T = 4..24 (one digit per T):
+SHIFT r0=1  P=3: 033333333333333333333
+SHIFT r0=1  P=4: 000111333333333333333
+SHIFT r0=1  P=5: 000011111111133333333
+SHIFT r0=1  P=6: 000000111111111111111
+SHIFT r0=1  P=7: 000000011111111111111
+SHIFT r0=1  P=8: 000000000111111111111
+SHIFT r0=2  P=3: 001333333333333333333
+SHIFT r0=2  P=4: 000111333333333333333
+SHIFT r0=2  P=5: 000001111111111111333
+SHIFT r0=2  P=6: 000000111111111111111
+SHIFT r0=2  P=7: 000000001111111111111
+SHIFT r0=2  P=8: 000000000111111111111
+SHIFT r0=3  P=3: 001133333333333333333
+SHIFT r0=3  P=4: 000011111133333333333
+SHIFT r0=3  P=5: 000001111111111111111
+SHIFT r0=3  P=6: 000000011111111111111
+SHIFT r0=3  P=7: 000000001111111111111
+SHIFT r0=3  P=8: 000000000111111111111
+SHIFT r0=4  P=3: 000133333333333333333
+SHIFT r0=4  P=4: 000011111122222222222
+SHIFT r0=4  P=5: 000000111111111111111
+SHIFT r0=4  P=6: 000000011111111111111
+SHIFT r0=4  P=7: 000000001111111111111
+SHIFT r0=4  P=8: 000000000111111111111
+SHIFT r0=5  P=3: 000111222222222222222
+SHIFT r0=5  P=4: 000001111111112222222
+SHIFT r0=5  P=5: 000000111111111111111
+SHIFT r0=5  P=6: 000000011111111111111
+SHIFT r0=5  P=7: 000000001111111111111
+SHIFT r0=5  P=8: 000000000111111111111
+SHIFT r0=6  P=3: 000011122222222222222
+SHIFT r0=6  P=4: 000001111111112222222
+SHIFT r0=6  P=5: 000000111111111111111
+SHIFT r0=6  P=6: 000000011111111111111
+SHIFT r0=6  P=7: 000000001111111111111
+SHIFT r0=6  P=8: 000000000111111111111
+SHIFT r0=7  P=3: 000011122222222222222
+SHIFT r0=7  P=4: 000001111111112222222
+SHIFT r0=7  P=5: 000000111111111111111
+SHIFT r0=7  P=6: 000000011111111111111
+SHIFT r0=7  P=7: 000000001111111111111
+SHIFT r0=7  P=8: 000000000111111111111
+SHIFT r0=8  P=3: 000011122222222222222
+SHIFT r0=8  P=4: 000001111111112222222
+SHIFT r0=8  P=5: 000000111111111111111
+SHIFT r0=8  P=6: 000000011111111111111
+SHIFT r0=8  P=7: 000000001111111111111
+SHIFT r0=8  P=8: 000000000111111111111
+SHIFT r0=9  P=3: 000011122222222222222
+SHIFT r0=9  P=4: 000001111111112222222
+SHIFT r0=9  P=5: 000000111111111111111
+SHIFT r0=9  P=6: 000000011111111111111
+SHIFT r0=9  P=7: 000000001111111111111
+SHIFT r0=9  P=8: 000000000111111111111
+SHIFT r0=10 P=3: 000011122222222222222
+SHIFT r0=10 P=4: 000001111111112222222
+SHIFT r0=10 P=5: 000000111111111111111
+SHIFT r0=10 P=6: 000000011111111111111
+SHIFT r0=10 P=7: 000000001111111111111
+SHIFT r0=10 P=8: 000000000111111111111
 Sweep B: calm-period erosion
   shocks need reserves >= 4 and remove 4; 4 shocks, each after L calm ticks; a calm tick earns 1; reserves start at 6
-  myopic floor 0; static floor 6; adaptive floor resets to 6 after a shock, drops by 1 every k calm ticks
+  fixed class: the adaptive shield (floor resets to 6 after a shock, drops by 1 every k calm ticks); policy class: any amount kept; myopic (floor 0) and static (floor 6) are policy-class rules
   survival by calm interval L = 1..25 (S = survives all shocks, x = fails):
 SURVIVAL myopic       xxxxxxxxxxxxxxxxxxxxxxxxx
 SURVIVAL static       xxxSSSSSSSSSSSSSSSSSSSSSS
@@ -74,3 +138,16 @@ OUTPUT k=4 L=10: 16/28/30
 OUTPUT k=4 L=12: 18/36/15*
 OUTPUT k=4 L=16: 22/52/20*
 OUTPUT k=4 L=24: 30/84/30*
+SEVERITY k=1 at the start, by L = 1..25: 4411111111111111111111111
+SEVERITY k=2 at the start, by L = 1..25: 4410011111111111111111111
+SEVERITY k=3 at the start, by L = 1..25: 4410000011111111111111111
+SEVERITY k=4 at the start, by L = 1..25: 4410000000011111111111111
+SEVERITY k=5 at the start, by L = 1..25: 4410000000000011111111111
+SEVERITY k=6 at the start, by L = 1..25: 4410000000000000011111111
+SEVERITY k=7 at the start, by L = 1..25: 4410000000000000000011111
+SEVERITY k=8 at the start, by L = 1..25: 4410000000000000000000011
+NESTING fixed <= policy <= adapt <= phys at the start, every (k, L): 600 checks, 0 violations
+MIGRATION k=4 L=12, the shield's severity by tick (one group per round of L calm ticks and a shock): 1111111111114|4
+MIGRATION k=4 L=12: t*_adapt = 11; margin mu by tick: 11 10 9 8 7 6 5 4 3 2 1 0 -1 -1
+MIGRATION k=2 L=6, the shield's severity by tick (one group per round of L calm ticks and a shock): 1111114|4
+MIGRATION k=2 L=6: t*_adapt = 5; margin mu by tick: 5 4 3 2 1 0 -1 -1

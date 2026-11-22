@@ -1,0 +1,25 @@
+Argument VI, Part II: the joint system of three agents on a shared recovery chain
+  agent 1 in the adapt class; partners 2 and 3 each adapt (C), fixed (N: incumbent routine, votes yes) or adversarial (A: a disturbance, I.3.8, covert unless stated); authorization costs 2 ticks of the current crisis and takes effect next cycle; horizon 12 cycles
+REFERENCE D=7, l0=2, delta=2, prune time 1+2n per segment, neutral routine patch; cycles survived from the origin, by classes of partners 2 and 3 (C adapt, N fixed, A adversary)
+GOV none: CCC 12, CCN 3, CNN 2, CCA 3, CNA 2, CAA 1
+GOV unilateral: CCC 12, CCN 12, CNN 12, CCA 12, CNA 12, CAA 12
+GOV unanimous: CCC 12, CCN 12, CNN 12, CCA 3, CNA 2, CAA 1
+GOV none, physical class (routines freed; no seed present): CCC 12, CCN 12, CNN 12, CCA 3, CNA 3, CAA 1
+GOV unanimous, physical class (routines freed; seed admissible unauthorized): CCC 12, CCN 12, CNN 12, CCA 12, CNA 12, CAA 12
+FIRST MOVE unilateral CNA (first action in preference order that keeps the origin in the kernel): chain patch + propose; with one-cycle lookahead agent 1 guarantees 1 of 12 cycles
+BOUNDS reference: one neutral patcher floor((D-l0)/delta)+1 = 3; two patchers floor((D-l0)/(2*delta))+1 = 2
+SWEEP D=4..12, l0=1..4, delta=1..3, prune slope lam in (0, delta, 2*delta); 324 configurations, each under 3 governance rules and 2 neutral routines (patch; prune at depth 2)
+NESTING kernel inclusions adversary <= fixed <= adapt (6 substitutions, every reachable state, horizons 0..12): 20891364 checks, 0 violations
+SURVIVAL gov=none routine=patch: CCC 279, CCN 0, CNN 0, CCA 0, CNA 0, CAA 0 (configurations surviving all 12 cycles, of 324)
+SURVIVAL gov=none routine=prune2: CCC 279, CCN 168, CNN 98, CCA 0, CNA 0, CAA 0 (configurations surviving all 12 cycles, of 324)
+SURVIVAL gov=unilateral routine=patch: CCC 297, CCN 297, CNN 297, CCA 270, CNA 270, CAA 234 (configurations surviving all 12 cycles, of 324)
+SURVIVAL gov=unilateral routine=prune2: CCC 297, CCN 297, CNN 297, CCA 270, CNA 270, CAA 234 (configurations surviving all 12 cycles, of 324)
+SURVIVAL gov=unanimous routine=patch: CCC 297, CCN 297, CNN 297, CCA 0, CNA 0, CAA 0 (configurations surviving all 12 cycles, of 324)
+SURVIVAL gov=unanimous routine=prune2: CCC 297, CCN 297, CNN 297, CCA 0, CNA 0, CAA 0 (configurations surviving all 12 cycles, of 324)
+BOUND no seed, routine patch, CCN: cycles survived <= floor((D-l0)/delta)+1 in 324, equal in 219; CNN: <= floor((D-l0)/(2*delta))+1 in 324, equal in 324 (of 324)
+BOUND CNA, routine patch: <= floor((D-l0)/(2*delta))+1 with no seed in 324 and under unanimity in 324; unanimity gives the no-seed survival in 324
+SEVERITY no seed, routine patch, outside the 12-cycle kernel: CCC 45 (severity 3: 0, severity 4: 45), CCN 324 (severity 3: 279, severity 4: 45), CNN 324 (severity 3: 279, severity 4: 45), CCA 324 (severity 3: 0, severity 4: 324), CNA 324 (severity 3: 0, severity 4: 324), CAA 324 (severity 3: 0, severity 4: 324)
+NEUTRAL vs ADVERSARY no seed: replacing fixed partner 3 by an adversary leaves survival unchanged in 216 (routine patch) and 172 (routine prune2) of 324
+VETO unanimity, routine patch: CNN survives all 12 cycles and CNA does not in 297; the physical class survives all 12 in 297 of them (severity 3)
+UNILATERAL CNA, routine patch: survives all 12 cycles in 270; early-authorization condition l0+alpha+2 <= D holds in 234, of which surviving 234; one-cycle lookahead survives all 12 in 0
+OVERT adversary (may withhold its segment), routine patch: surviving all 12 cycles: none CCA 0, CNA 0, CAA 0; unilateral CCA 0, CNA 0, CAA 0; unanimous CCA 0, CNA 0, CAA 0; surviving the first cycle: 0 of 324 under any rule

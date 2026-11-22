@@ -1,5 +1,18 @@
 # Build and verification log
 
+## Arguments V and VI in the four control classes; Argument VI Part II, 22 November 2026
+
+Windows, Lean 4.15.0. Argument V's sweeps and Argument VI's model were rebuilt as control systems on explicit $`(x,O,\pi,q)`$ states, with the four classes of I.3.3 as lists of admissible actions (`Paradox/ConcessionModel.lean`, `Paradox/RatchetModel.lean`). Argument VI Part II (three agents on a shared chain) was added on the same machinery, with adversaries as I.3.8 disturbances (`Paradox/SharedRatchet.lean`, `Paradox/SharedRatchetModel.lean`, `argVI multi`). `Theory.lean`, `Concession.lean` and `Ratchet.lean` are unchanged.
+
+| Verification | Result |
+|---|---|
+| Axioms | Every theorem in `ConcessionModel.lean` (14), `RatchetModel.lean` (23) and `SharedRatchet.lean` (54) uses at most `propext`, `Classical.choice` and `Quot.sound`. No `sorry`, no `native_decide`; concrete reference facts use `decide +kernel`. |
+| No regression | `.\run_all.ps1` rebuilt everything. The 11 other committed outputs are byte-identical (SHA-256); `argV_output.txt` and `argVI_output.txt` changed by design. |
+| Argument V | `argV_output.txt` (153 lines). The policy kernel reproduces the earlier crossover table and regime counts exactly; the scar windows change, because a forced switch now cancels a realignment in flight. Nesting: 7,560 + 600 checks, no violation. Post-concession severities 0/1/2/3: 368/630/138/124; Sweep B severities are 0, 1 or 4 only. |
+| Argument VI | `argVI_output.txt` (23 lines, Lean only). Nesting at every state reachable under physical actions: 58,904,490 checks, no violation. Severity at the start 0/1/2/3/4: 18/0/1,537/129/260. Rule survival (18, 1,040, 1,152, 789; adaptive kernel 1,555) and the sensitivity counts equal the earlier model's. The patch routine passes its adaptive point of no return during an earlier crisis than its failing one in 927 configurations. |
+| Argument VI Part II | `argVI_multi_output.txt` (25 lines). Nesting: 20,891,364 checks, no violation. |
+| Python comparisons | `python python/crosscheck_all.py`: exit 0 in 650 s, zero mismatches in all 12 comparisons, including `argV` and the new `argVImulti`. Argument VI's single-organization sweep has no Python mirror. |
+
 ## Argument VI (the escape ratchet), 22 November 2026
 
 Windows, Lean 4.15.0. Added `Paradox/Ratchet.lean` (theory), `Paradox/RatchetModel.lean` (reference proofs and the exact model), `ArgVIMain.lean` (target `argVI`) and `python/toy/argVI.py`. `Theory.lean` is unchanged.
