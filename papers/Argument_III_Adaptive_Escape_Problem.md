@@ -230,6 +230,8 @@ The original outline described a control loop: observe, identify threatened cons
 
 The loop never presumes that an escape exists. Severities 3 and 4, and "unknown", are legitimate outputs.
 
+**An exact benchmark for step 6.** Where kernels can be computed exactly, preserving options has an exact form: a viability shield, in the sense of shielded reinforcement learning (Alshiekh et al. 2018). The short-horizon optimizer chooses freely, and it is overridden only when its choice would leave $`\mathcal K_{\mathrm{adapt}}`$. In the settlement model of Argument I, the shield saves all 6,000 settings of Experiment E. Without frictions it never lowers the optimizer's objective. With a training cost it gives up a measurable amount in each of the 4,940 settings where the unshielded rule locks in (I.7, Experiment E). Where the kernel is only bounded, a shield must use the states with known witnesses, an inner approximation. The gap of III.7 then becomes the cost of caution.
+
 ## III.9. Policy and institutional implications
 
 The outline's candidate interventions can now be stated precisely. They remain candidates whose costs must be evaluated.
@@ -285,6 +287,7 @@ Together they form a research program: **diagnosis → time constraint → reach
 ## References
 
 - Abdulaziz, M., and F. Kurz (2023). Formally verified SAT-based AI planning. *Proceedings of the AAAI Conference on Artificial Intelligence* 37(12), 14665–14673. [DOI](https://doi.org/10.1609/aaai.v37i12.26714)
+- Alshiekh, M., R. Bloem, R. Ehlers, B. Könighofer, S. Niekum, and U. Topcu (2018). Safe reinforcement learning via shielding. *Proceedings of the AAAI Conference on Artificial Intelligence* 32(1). [DOI](https://doi.org/10.1609/aaai.v32i1.11797)
 - Brafman, R. I., and C. Domshlak (2003). Structure and complexity in planning with unary operators. *Journal of Artificial Intelligence Research* 18, 315–349. [DOI](https://doi.org/10.1613/jair.1146)
 - Bylander, T. (1994). The computational complexity of propositional STRIPS planning. *Artificial Intelligence* 69(1–2), 165–204. [DOI](https://doi.org/10.1016/0004-3702(94)90081-7)
 - Coffrin, C., and P. Van Hentenryck (2015). Transmission system restoration with co-optimization of repairs, load pickups, and generation dispatch. *International Journal of Electrical Power & Energy Systems* 72, 144–154. [DOI](https://doi.org/10.1016/j.ijepes.2015.02.027)

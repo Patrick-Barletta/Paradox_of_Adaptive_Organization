@@ -375,8 +375,8 @@ s'\succeq s\iff f'\ge f,\quad C'\le C,\quad D'\ge D,\quad \text{pipe}'\ge\text{p
 *Proof, component by component.*
 
 - **Cumulative emissions.** $`C_{t+1}=C_t+E_{\mathrm{ref}}(t)(1-f_t)`$. Since $`f'\ge f`$ and $`C'\le C`$, we get $`C'_{t+1}\le C_{t+1}`$.
-- **Capacity.** For $`L>1`$, the next capacity adds the first outstanding order, which is at least as large in the relaxation. For $`L=1`$, the queue is empty and this year's order enters next year's capacity directly. The relaxation orders $`g_{\max}D'\ge u`$ in that case.
-- **Pipeline.** For $`L>1`$, the relaxation appends $`g_{\max}D'\ge g_{\max}D\ge u`$ after shifting the existing orders. Dominance holds entrywise. At $`L=1`$, both queues remain empty.
+- **Capacity.** For $`L\gt 1`$, the next capacity adds the first outstanding order, which is at least as large in the relaxation. For $`L=1`$, the queue is empty and this year's order enters next year's capacity directly. The relaxation orders $`g_{\max}D'\ge u`$ in that case.
+- **Pipeline.** For $`L\gt 1`$, the relaxation appends $`g_{\max}D'\ge g_{\max}D\ge u`$ after shifting the existing orders. Dominance holds entrywise. At $`L=1`$, both queues remain empty.
 - **Depth.** The real step reaches at most $`\min\{G(f,\,Y_t-c_{\mathrm{cap}}u),\ f+D/E_{\mathrm{ref}}(t+1),\ 1\}`$. Here $`G(f,Y)`$ is the deepest depth affordable from $`f`$ with budget $`Y`$, defined by $`E_{\mathrm{ref}}(t+1)\int_f^{G}c=Y`$. Because the capex density satisfies $`c\gt 0`$ on $`[0,1]`$ (since $`n(0)+s=\$50`$/t), $`G`$ is increasing in $`f`$, with $`\partial G/\partial f=c(f)/c(G)\gt 0`$, and nondecreasing in $`Y`$. $`\mathcal P^\star`$ reaches $`\min\{G(f',Y_t),\ f'+D'/E_{\mathrm{ref}}(t+1),\ 1\}`$, and each term is at least the corresponding term for the real step. So $`f'_{t+1}\ge f_{t+1}`$.
 
 Both viability conditions, $`C\le B`$ and terminal $`f=1`$, are upward closed under $`\succeq`$. By the simulation theorem (`Theory.viab_sim`, with $`R={\succeq}`$), if $`\mathcal P^\star`$ fails from $`s`$, every schedule of the real model fails from $`s`$. $`\square`$
