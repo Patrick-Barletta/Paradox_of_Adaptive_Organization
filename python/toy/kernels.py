@@ -8,7 +8,12 @@ with a witness trajectory; non-membership is an exhaustive exclusion.
 State s = (t, F, P, farm, spec, prog)
   x = (F, P)        F: food stock, P: harvest arriving next tick
   O = (farm, spec)  farm: farming capability; spec: foragers specialized
-  q = prog          worker-ticks of farm training completed (pending move)
+  q = prog          worker-ticks of farm training completed (pending move); once farming is
+                    held, consecutive ticks with no farmers (used only when skill decay is on)
+
+Two optional frictions, both off by default (the published model):
+  DECAY       farming is lost after this many consecutive ticks with no farmers (0 = never)
+  TRAIN_COST  food consumed per trainee-tick
 """
 from functools import lru_cache
 from itertools import product
@@ -22,15 +27,18 @@ FARM_YIELD = 2        # per farmer, harvested one tick after planting
 SPEC_BONUS = 1        # extra forage per specialized forager while wild yield > 0
 R = {0: 2, 1: 8}      # worker-ticks of training needed to acquire farming (generalist, specialized)
 WILD = [2] * 6 + [1] * 2 + [0] * 8           # exogenous wild yield per forager
+DECAY = 0             # skill decay: idle ticks before farming is lost (0 = never)
+TRAIN_COST = 0        # food per trainee-tick
 
 
-def configure(fmax=20, T_=16, spec_bonus=1, r_spec=8, wild=None):
-    """Switch to another member of the model family (used by the Experiment E sweep).
-    The defaults restore the base model of I.3.10."""
-    global FMAX, T, SPEC_BONUS, R, WILD
+def configure(fmax=20, T_=16, spec_bonus=1, r_spec=8, wild=None, decay=0, train_cost=0):
+    """Switch to another member of the model family (used by the Experiment E and friction
+    sweeps). The defaults restore the base model of I.3.10."""
+    global FMAX, T, SPEC_BONUS, R, WILD, DECAY, TRAIN_COST
     FMAX, T, SPEC_BONUS = fmax, T_, spec_bonus
     R = {0: 2, 1: r_spec}
     WILD = list(wild) if wild is not None else [2] * 6 + [1] * 2 + [0] * 8
+    DECAY, TRAIN_COST = decay, train_cost
     viable.cache_clear()
 
 
@@ -52,16 +60,22 @@ def step(t, F, P, farm, spec, prog, f, m, r, specialize, phys=False):
         forage = f * (y + (SPEC_BONUS if y > 0 else 0))   # best physical technique
     else:
         forage = f * (y + (SPEC_BONUS if (spec and y > 0) else 0))
-    raw = F + forage + P - N
+    raw = F + forage + P - N - TRAIN_COST * r
     if raw < 0:
         return None                                      # starvation: leaves V
     F2 = min(FMAX, raw)                                  # free disposal above capacity
     P2 = FARM_YIELD * m
     spec2 = int(spec or specialize)
+    if farm:
+        # Skill decay: prog counts consecutive ticks with no farmers; at DECAY farming is lost.
+        idle = (0 if m else prog + 1) if DECAY else 0
+        if DECAY and idle >= DECAY:
+            return (t + 1, F2, P2, 0, spec2, 0)
+        return (t + 1, F2, P2, 1, spec2, idle)
     prog2 = prog + r
     # Finish any training earned under the current organization, then credit
     # accumulated training against the threshold of the new organization.
-    farm2 = int(farm or prog2 >= min(R[spec], R[spec2]))
+    farm2 = int(prog2 >= min(R[spec], R[spec2]))
     if farm2:
         prog2 = 0
     return (t + 1, F2, P2, farm2, spec2, prog2)
@@ -165,7 +179,7 @@ def all_states():
             for P in range(0, FARM_YIELD * N + 1, FARM_YIELD):
                 for farm in (0, 1):
                     for spec in (0, 1):
-                        for prog in (range(R[spec]) if not farm else [0]):
+                        for prog in (range(R[spec]) if not farm else range(max(1, DECAY))):
                             yield (t, F, P, farm, spec, prog)
 
 

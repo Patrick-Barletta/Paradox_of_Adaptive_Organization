@@ -1,5 +1,9 @@
 # Build and verification log
 
+## Friction extension, 22 November 2026
+
+`Paradox/Model.lean` and `python/toy/kernels.py` gained two optional frictions, skill decay and a training cost. Both are off by default. With them off, `.\run_all.ps1` regenerated all eight earlier outputs byte for byte (no change in `git diff`), and `Params.step_valid` was reproved for every decay setting and training cost. The new `friction` executable writes `friction_output.txt` (ten friction settings × 6,000 Experiment E settings, about 7 minutes). Its first row reproduces the Experiment E counts. `python python/crosscheck_all.py friction` compares it line by line with the independent Python reference, which maximizes the second lookahead tick over all actions where Lean uses all-forage.
+
 ## Corrected models, 20 November 2026
 
 The Windows Lean 4.15.0 toolchain built the library, certified facts and all five executables from a clean copy of the source. All eight published TXT and CSV outputs were regenerated. The full Python reference checks and an independent regeneration are recorded below.

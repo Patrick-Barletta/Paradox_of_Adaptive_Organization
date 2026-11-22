@@ -1,0 +1,20 @@
+Friction sweep over 6000 settings of the Experiment E grid
+  decay: farming is lost after this many consecutive ticks with no farmers (0 = never)
+  trainCost: food consumed per trainee-tick
+  forage, train: two-tick stock rules with ties favoring foraging or training
+  shield: the forage rule restricted to actions whose next state stays in K_adapt
+  acqTies: acquire farming (ties favor training), then specialize; acqEarly: acquire it as fast as possible, then specialize
+  shieldStrict: settings where a shield override lowers the two-tick value; shieldPrice: two-tick value given up, summed
+  lockDeficit: forage minus shield food (stock + incoming harvest) at the forage rule's first lock-in tick, summed
+
+decay,trainCost,forageLock,forageSurv,trainSurv,shieldSurv,shieldStrict,shieldPrice,lockDeficit,acqTiesSurv,acqTiesLock,acqEarlySurv,acqEarlyLock
+0,0,4940,1060,6000,6000,0,0,0,6000,0,6000,0
+6,0,4940,1060,6000,6000,0,0,0,6000,0,6000,0
+4,0,4940,1060,6000,6000,0,0,0,6000,0,5970,30
+3,0,4940,1060,6000,6000,0,0,0,6000,0,5795,205
+2,0,4940,1060,6000,6000,0,0,0,6000,0,4400,1425
+1,0,4940,1060,6000,6000,0,0,0,5990,10,1275,3100
+0,1,4940,1060,2075,6000,4940,48810,7002,660,5340,6000,0
+0,2,4940,1060,1855,5700,4640,76323,9602,380,5620,5000,950
+0,3,4940,1060,1784,5354,4294,86788,10082,380,5620,4000,1900
+2,1,4940,1060,2075,6000,4940,48810,7002,660,5340,2300,3160

@@ -20,12 +20,13 @@ Three linked arguments about how adaptive systems lose, and can sometimes regain
 |---|---|---|
 | `Paradox/Theory.lean` | General proofs. Argument I: simulation theorem; Proposition 1 (nesting, exact and dominance forms); Proposition 3 (monotone loss) and its contrapositive; Proposition 3′ (robust, strengthened); a formal counterexample showing Proposition 3 fails for robust kernels; Proposition 4 and the paradox fingerprint corollary. Argument II: `rate_upward`, `delay_never_lowers_required_rate` (Proposition II.1), `greedy_suffices`, and a counterexample showing Proposition II.1's nesting hypothesis cannot be dropped (`rate_upward_needs_nesting`) | Fully proved. No `sorry`, no `native_decide`. Axioms: none, or only `propext` and `Quot.sound` (from `omega`) |
 | `Paradox/Escape.lean` | Argument III: STRIPS instances, the escape problem, `escape_wait`, `planning_iff_escape` and `planning_iff_escape_A0` (Theorem III.1) | Fully proved. No `sorry`, no `native_decide`. Axioms: `propext` and `Quot.sound` only |
-| `Paradox/Model.lean` | Settlement transitions and a general proof that every successful step preserves the training-state invariant used by the kernel table | The proof covers every pair of training thresholds |
+| `Paradox/Model.lean` | Settlement transitions, with two optional frictions that are off by default (skill decay and a training cost), and a general proof that every successful step preserves the state invariant used by the kernel table | The proof covers every pair of training thresholds, every decay setting and every training cost |
 | `Paradox/Kernel.lean` | Exact kernels by backward recursion; severity; witnesses; independent verification; points of no return; nesting, Proposition 4 and fingerprint checks | — |
 | `Paradox/Certified.lean` | Five severities, verified witnesses, 17,136 time-indexed states, nesting, the prescribed pair (recovery windows 12 vs 10), both decision rules at tick 11 and the horizon, and the simultaneous training/specialization regression | `native_decide` trusts the Lean compiler (`Lean.ofReduceBool`) |
 | `Paradox/Climate.lean`, `ClimateMain.lean` | Climate recovery windows, rate bounds, and the comparison of a capacity builder with a carbon-price cutoff rule | Numerical results for all 612 configurations are cross-checked with Python. The climate-specific dominance argument is given in the paper. |
 | `Report.lean` | Executable: demonstration states, the paradox pair, and the Proposition 4 and fingerprint checks | Output identical to `python/toy/report.py`, line for line |
 | `Paradox/Decision.lean`, `ExperimentE.lean` | Two-tick stock-maximizing decisions under both tie-breaking rules, plus the prescribed-path comparison over 6,000 settings | Each result field is checked against `python/toy/experiment_e.py` |
+| `Paradox/Friction.lean`, `FrictionMain.lean` | Friction sweep: the two-tick rules, a viability shield (the forage rule restricted to the adapt kernel) and two "acquire farming first" rules, under skill decay and training cost, over the Experiment E grid | Output identical to `python/toy/friction.py`, line for line |
 | `ArgIIMain.lean` | Executable: Argument II experiments (the acceleration dilemma, AI as accelerator and margin consumer, monotonicity of the required rate, constraint ablation, carbon-price thresholds) | Output identical to `python/experiments_ii.py lean`, line for line |
 | `ArgIIIMain.lean` | Executable: demonstrations III.A (restoration independence) and III.B (the bounds gap) | Output identical to `python/toy/argIII.py`, line for line |
 
@@ -39,7 +40,7 @@ The Python reference is an independent implementation of the same models. All of
 Paradox/          Lean library: proofs, models, kernels
 Paradox.lean      library root
 *Main.lean, Report.lean, ExperimentE.lean
-                  executables (targets: report, experimentE, climate, argII, argIII)
+                  executables (targets: report, experimentE, climate, argII, argIII, friction)
 papers/           the three arguments (Markdown and PDF), the climate experiment write-up,
                   prior art, bibliography and citation check
 results/          saved output of every executable, plus the build and run log
@@ -67,6 +68,8 @@ cd results
 ../.lake/build/bin/climate --check # values for cross-checking against python/climate.py
 ../.lake/build/bin/argII           # Argument II experiments (a few seconds)
 ../.lake/build/bin/argIII          # Argument III demonstrations
+../.lake/build/bin/friction        # friction sweep: ten friction settings x the full grid (~7 min)
+../.lake/build/bin/friction 200    # first 200 settings only
 ```
 
 On Windows, `.\run_all.ps1` builds everything and regenerates the files in `results/`.
@@ -76,7 +79,7 @@ On Windows, `.\run_all.ps1` builds everything and regenerates the files in `resu
 Python 3, standard library only.
 
 ```
-python python/crosscheck_all.py           # verify all three result CSVs and all five text reports
+python python/crosscheck_all.py           # verify all three result CSVs and all six text reports (~8 min)
 ```
 
 The checker validates grid coordinates and columns, recomputes all model results, and compares the saved reports line by line. The two sweep summaries are reconstructed from the verified rows. A mismatch, missing setting, or malformed file produces a nonzero exit status. A successful run reports these comparisons (the Experiment E line covers both its CSV and its 68-line summary).
@@ -89,9 +92,10 @@ argII: 85 lines, 0 differ from results/argII_output.txt
 report: 51 lines, 0 differ from results/report_output.txt
 argIII: 14 lines, 0 differ from results/argIII_output.txt
 experimentE: 6000 settings, 0 field mismatches
+friction: 20 lines, 0 differ from results/friction_output.txt
 ```
 
-Pass a name (`window`, `paradox`, `climate`, `argII`, `report`, `argIII`, `experimentE`) to run one comparison. The individual scripts can also be run directly:
+Pass a name (`window`, `paradox`, `climate`, `argII`, `report`, `argIII`, `experimentE`, `friction`) to run one comparison. The individual scripts can also be run directly:
 
 ```
 python python/experiments_ii.py           # Argument II experiments, readable form (add `lean` for the Lean format)
@@ -99,6 +103,7 @@ python python/checks.py                   # dominance and two-phase robustness c
 python python/toy/report.py               # settlement model: demonstration states, paradox pair, checks
 python python/toy/argIII.py               # demonstrations III.A and III.B (pass A or B for one)
 python python/toy/experiment_e.py         # Experiment E, all 6,000 settings (pass n for the first n)
+python python/toy/friction.py             # friction sweep (several minutes; pass n for the first n)
 ```
 
 ## Experiment E grid
@@ -113,3 +118,11 @@ python python/toy/experiment_e.py         # Experiment E, all 6,000 settings (pa
 | Ticks of half wild yield | 0–2 |
 
 Across the 6,000 settings, the two-tick stock rule that favors foraging enters lock-in in 4,940 (82.3%). The rule that favors training survives all 6,000. The prescribed specialist/generalist comparison shows storage dominance and an earlier closing window in 1,581 settings (26.4%). In the CSV, `paradox` records that prescribed-pair result, `forageFirstLock` and `trainFirstLock` record the first locked-in tick (−1 if absent), and the survival columns record arrival at the horizon. The two `StrongVsA` columns compare the corresponding decision rule with generalist A at the same tick. See `results/experimentE_output.txt` and `results/experimentE_results.csv`.
+
+## Friction sweep
+
+`results/friction_output.txt` reruns the decision rules over the same grid with two optional frictions: skill decay (farming is lost after d consecutive ticks with no farmers) and a training cost (c food per trainee-tick). With both off it reproduces the Experiment E counts.
+
+- **Frictionless model:** a viability shield on the forage rule survives all 6,000 settings. It overrides in exactly the 4,940 settings where the unshielded rule locks in, and no override lowers the two-tick objective. Here, lock-in comes from tie-breaking. The costless ties occur after wild yield has run out, when foraging and training both produce nothing.
+- **Training cost, c = 1:** every one of the 4,940 overrides now lowers the two-tick objective, while the shield still survives all 6,000. Selection becomes strict. The shielded rule holds on average 1.42 less food (stock plus incoming harvest) at the tick the unshielded rule locks in.
+- **Skill decay:** it never changes the two-tick rules, which acquire farming only when they need it and then use it every tick. It does close the "acquire farming first, then specialize" strategy: with d = 2 that rule locks in 1,425 settings (3,160 when combined with c = 1).

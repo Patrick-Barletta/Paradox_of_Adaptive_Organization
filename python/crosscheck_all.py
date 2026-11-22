@@ -1,4 +1,4 @@
-"""Verify all three result CSVs and all five saved executable reports."""
+"""Verify all three result CSVs and all six saved executable reports."""
 import csv, math, os, subprocess, sys
 from itertools import product
 from pathlib import Path
@@ -142,6 +142,7 @@ CHECKS = {
     "report":      lambda: check_output("report", "report_output.txt", "toy/report.py"),
     "argIII":      lambda: check_output("argIII", "argIII_output.txt", "toy/argIII.py"),
     "experimentE": check_experiment_e,
+    "friction":    lambda: check_output("friction", "friction_output.txt", "toy/friction.py"),
 }
 
 if __name__ == "__main__":
