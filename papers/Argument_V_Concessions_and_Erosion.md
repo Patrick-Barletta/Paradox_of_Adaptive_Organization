@@ -38,6 +38,8 @@ Both models are control systems on explicit I.3 states. Each class is a list of 
 
 **Sweep B (calm-period erosion).** $`x`$ = reserves; $`\pi`$ = the reserve floor; $`q`$ = the calm counter. Rounds of $`L`$ calm ticks are each followed by a shock that needs and removes 4. A calm tick earns 1, and the organization keeps some of its reserves and spends the rest. $`\mathcal U_{\mathrm{fixed}}`$ is the adaptive empirical shield: its floor resets to 6 after a shock and drops by 1 after every $`k`$ calm ticks, through the update `calmStep` of Theorem V.3, and it keeps $`\min(r,\text{floor})`$. $`\mathcal U_{\mathrm{policy}}`$ revises the floor freely, so it may keep any amount. The model has no capability-changing move, so $`\mathcal U_{\mathrm{adapt}}`$ and $`\mathcal U_{\mathrm{phys}}`$ add nothing and their kernels equal the policy kernel.
 
+**Two choices A0–A3 do not settle (Sweep A).** (1) Whether a forced switch *cancels* a realignment already in flight. (2) Whether an uncleared obligation means *seizure* of reserves, or suspends operations (with upkeep) until it is cleared. Sweep A is computed under all four combinations; results are stated as holding in all of them or as depending on a named choice. Sweep B has no such choice.
+
 Lean (`argV`) and Python agree line for line on every result below (`results/argV_output.txt`).
 
 ## V.3. Horizon-dependent structural concessions
@@ -58,9 +60,9 @@ The theorem is elementary but it orders every comparison below. A choice that is
 
 Then for every horizon $`T\le T^*`$ the concession is in the kernel, and the clean fix is out of it whenever $`r_0\lt c_{\mathrm{fix}}`$. For every horizon $`T\gt T^*`$ the concession is out of the kernel, and the clean fix is in it whenever $`c_{\mathrm{fix}}\le r_0`$.
 
-*Proof.* Machine-checked: `concession_crossover`, from `conc_viab`, `conc_fail`, `clean_viab` and `clean_fail`. In the four-class model, `ref_shift` proves the crossover for $`r_0=1`$, $`P=4`$ from the modeled transitions. The post-concession state is in $`\mathcal K_{\mathrm{policy}}`$ but not in $`\mathcal K_{\mathrm{fixed}}`$ at horizon 9 (severity 1). At horizon 10 it is in $`\mathcal K_{\mathrm{phys}}`$ but not in $`\mathcal K_{\mathrm{adapt}}`$ (severity 3). $`\square`$
+*Proof.* Machine-checked: `concession_crossover`, from `conc_viab`, `conc_fail`, `clean_viab` and `clean_fail`. In the four-class model, `ref_shift` proves the crossover for $`r_0=1`$, $`P=4`$ from the modeled transitions, in all four variants. The post-concession state is in $`\mathcal K_{\mathrm{policy}}`$ but not in $`\mathcal K_{\mathrm{fixed}}`$ at horizon 9 (severity 1). At horizon 10 it is in $`\mathcal K_{\mathrm{phys}}`$ but not in $`\mathcal K_{\mathrm{adapt}}`$ (severity 3). $`\square`$
 
-**The crossover horizon** $`T^*(r_0,P)`$ is the largest horizon at which the post-concession state is in the policy kernel ("all": through 24):
+**The crossover horizon** $`T^*(r_0,P)`$ is the largest horizon at which the post-concession state is in the policy kernel ("all": through 24). It is the same in all four variants:
 
 | $`r_0`$ | $`P=3`$ | 4 | 5 | 6 | 7 | 8 |
 |---|---|---|---|---|---|---|
@@ -72,7 +74,7 @@ Then for every horizon $`T\le T^*`$ the concession is in the kernel, and the cle
 
 Per switch period, the concession nets $`(P-2)\cdot1-2\cdot2=P-6`$ and the clean fix $`(P-1)\cdot2-2=2P-4`$. With frequent switches ($`P\le5`$) the concession bleeds reserves and has a finite $`T^*`$; with $`P\ge6`$ it is sustainable. The crossover horizon scales with switch frequency times the scar's cost per switch, as the debrief conjectured.
 
-**Regimes across the 1,260 cells** ($`r_0=1,\dots,10`$, $`P=3,\dots,8`$, $`T=4,\dots,24`$), for the policy kernel of each post-choice state:
+**Regimes across the 1,260 cells** ($`r_0=1,\dots,10`$, $`P=3,\dots,8`$, $`T=4,\dots,24`$), for the policy kernel of each post-choice state, the same in all four variants:
 
 | Regime | Cells |
 |---|---|
@@ -81,9 +83,9 @@ Per switch period, the concession nets $`(P-2)\cdot1-2\cdot2=P-6`$ and the clean
 | Clean fix only (concession past $`T^*`$) | 127 |
 | Neither | 135 |
 
-**Severities.** At the decision state the obligation is still pending. Neither $`\mathcal U_{\mathrm{fixed}}`$ nor $`\mathcal U_{\mathrm{policy}}`$ can clear it, so no cell has severity 0 or 1. The decision state has severity 2 in 1,136 cells and severity 3 in 124; no cell has severity 4. The adaptive class rescues 11 of the 135 "neither" cells by combining the concession now with a clean fix later. In the other 124 only the physical class survives. The post-concession state has severity 0 in 368 cells, 1 in 630, 2 in 138 and 3 in 124.
+**Severities.** At the decision state the obligation is still pending, and neither $`\mathcal U_{\mathrm{fixed}}`$ nor $`\mathcal U_{\mathrm{policy}}`$ can clear it. With seizure, no cell has severity 0 or 1: severity 2 in 1,136 cells and severity 3 in 124. With suspension, doing nothing survives the shortest horizons in 18 cells while the reserves last (severity 0); severity 2 falls to 1,118 and severity 3 stays at 124. No cell has severity 4 in either variant. The adaptive class rescues 11 of the 135 "neither" cells by combining the concession now with a clean fix later. In the other 124 only the physical class survives. The post-concession state has severity 0 in 368 cells, 1 in 630, 2 in 138 and 3 in 124, in all four variants.
 
-**The horizon moves one state across severity classes.** Post-concession severity by horizon $`T=4,\dots,24`$, one digit per horizon:
+**The horizon moves one state across severity classes.** Post-concession severity by horizon $`T=4,\dots,24`$, one digit per horizon (the same in all four variants):
 
 | $`r_0`$, $`P`$ | Severity by horizon | Reading |
 |---|---|---|
@@ -95,7 +97,16 @@ Per switch period, the concession nets $`(P-2)\cdot1-2\cdot2=P-6`$ and the clean
 
 Severity 0 at short horizons means even the never-revising incumbent survives: the horizon ends before its unrealigned policy drains the reserves. Beyond that, the concession needs the policy class to realign after every switch (severity 1). Past $`T^*`$ realignment is not enough. A later clean fix rescues it when the reserves can reach the fix's cost in time (severity 2); otherwise only the physical class survives (severity 3). The jump to severity 3 at $`T^*+1`$ is the concession's horizon reversal stated in Argument I's taxonomy: structural lock-in, with physical recovery still possible.
 
-**The scar is a hidden vulnerability even when both choices survive.** In the 24 cells $`(r_0,P)`$ where both choices survive the scheduled switches to tick 24, consider one additional, unscheduled forced switch. In 18 of them there are ticks at which that switch kills the concession but not the clean fix. With $`P=6`$ the window is ticks 9 and 15; with $`P=7`$ it is ticks 10–11 and 17–18; with $`P=5`$ it covers 9 or 10 of the 24 ticks; with $`P=8`$ there is none. Survival to the horizon does not show this cost; only the scar window does.
+**The scar is a hidden vulnerability even when both choices survive.** In the 24 cells $`(r_0,P)`$ where both choices survive the scheduled switches to tick 24, consider one additional, unscheduled forced switch. In 18 of them there are ticks at which that switch kills the concession but not the clean fix. The number of such cells, 18, holds in all four variants. The windows' extent depends on whether a switch cancels a realignment in flight:
+
+| $`P`$ | Switch cancels the realignment | Switch does not cancel it |
+|---|---|---|
+| 5 | 18–19 of the 24 ticks | 9–10 of the 24 ticks |
+| 6 | ticks 8–10 and 14–16 | ticks 9 and 15 |
+| 7 | ticks 9–12 and 16–19 | ticks 10–11 and 17–18 |
+| 8 | none | none |
+
+Survival to the horizon does not show this cost; only the scar window does.
 
 ## V.4. Calm-period margin erosion
 

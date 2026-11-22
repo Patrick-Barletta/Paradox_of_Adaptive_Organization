@@ -32,6 +32,11 @@ C_FIX, C_CONC = 5, 1
 OUT_FIX, OUT_CONC = 4, 3
 R0S, PS, TS = range(1, 11), range(3, 9), range(4, 25)
 CLASSES = ("fixed", "policy", "adapt", "phys")
+# Two modeling choices that A0-A3 do not settle, reported as variants: whether a forced switch cancels
+# a realignment in flight, and whether an uncleared obligation means seizure of reserves (otherwise
+# operations are suspended, with upkeep, until it is cleared).
+VARIANTS = [(True, True), (False, True), (True, False), (False, False)]
+VARIANT = {"cancel": True, "seize": True}
 
 
 def switch_at(P, extra, t):
@@ -69,13 +74,16 @@ def step_a(s, a, t, P, extra):
     r, scar, aligned, impl, oblig = s
     dec, realign, later, free = a
     if oblig:
+        sw = switch_at(P, extra, t)
+        base = r if t == 0 else r - U                     # the decision step has no upkeep
         if dec is None:
-            return None                                   # obligation uncleared: reserves seized
-        if dec == "clean":
-            return (min(RMAX, r - C_FIX), False, True, False, False)
-        if dec == "conc":
-            return (min(RMAX, r - C_CONC), True, True, False, False)
-        return (min(RMAX, r), False, True, False, False)  # physical class: no obligation
+            if VARIANT["seize"] or base < 0:
+                return None                               # reserves seized (or exhausted)
+            return (min(RMAX, base), False, True, False, True)   # operations suspended
+        cost = C_FIX if dec == "clean" else C_CONC if dec == "conc" else 0
+        if base - cost < 0:
+            return None
+        return (min(RMAX, base - cost), dec == "conc", not sw, False, False)
     if impl:
         aligned, impl = True, False                       # implementation move completes
     if realign and not aligned and not impl:
@@ -87,7 +95,9 @@ def step_a(s, a, t, P, extra):
     produce = aligned and not sw
     out = (OUT_FIX if (not scar or free) else OUT_CONC) if produce else 0
     if sw:
-        aligned, impl = False, False                      # a switch cancels a realignment in flight
+        aligned = False
+        if VARIANT["cancel"]:
+            impl = False                                  # the switch cancels a realignment in flight
     cost = C_FIX if later else 0
     raw = r + out - U - cost
     if raw < 0:
@@ -155,6 +165,15 @@ def sweep_a():
            f"implementation move per realignment; upkeep {U}; reserves capped at {RMAX}")
     yield f"  forced switches at operating ticks P, 2P, ...; starting reserves r0 = {R0S[0]}..{R0S[-1]}, horizons T = {TS[0]}..{TS[-1]}"
     yield "  crossover T*: largest horizon at which the post-concession state is in the policy kernel (all = through 24, none = not even 4)"
+    yield "VARIANTS two modeling choices A0-A3 do not settle; Sweep A is reported under all four combinations"
+    for cancel, seize in VARIANTS:
+        VARIANT["cancel"], VARIANT["seize"] = cancel, seize
+        yield (f"VARIANT a forced switch {'cancels' if cancel else 'does not cancel'} a realignment in flight; "
+               f"an uncleared obligation {'means seizure' if seize else 'suspends operations'}")
+        yield from sweep_a_variant()
+
+
+def sweep_a_variant():
     yield "CROSSOVER r0 \\ P " + " ".join(f"{P:>4}" for P in PS)
     for r0 in R0S:
         yield f"CROSSOVER r0={r0:<2}   " + " ".join(f"{crossover(r0, P):>4}" for P in PS)

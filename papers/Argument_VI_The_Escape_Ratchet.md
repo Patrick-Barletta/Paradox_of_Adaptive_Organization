@@ -12,10 +12,12 @@ Argument VI makes three claims, at three levels, and a fourth for shared recover
 
 1. **Mathematical.** If each patching escape adds at least $`\delta\ge1`$ ticks of unavoidable latency to the next escape and deadlines are bounded, patching becomes infeasible, no later than crisis $`\lfloor(D-\ell_0)/\delta\rfloor+1`$ and exactly then when growth is exact (Theorem VI.1, machine-checked).
 2. **Constructive.** In the four control classes, an organization can make three successful patching escapes and then reach a state outside $`\mathcal K_{\mathrm{adapt}}`$ and inside $`\mathcal K_{\mathrm{phys}}`$: severity 3 (Theorem VI.2 and the reference model, machine-checked).
-3. **Behavioral.** The incumbent patch routine leaves the adaptive kernel while its patches still succeed. In an exact sweep of 1,944 configurations it survives all 12 crises in 18. The adaptive kernel contains the start in 1,555. In 927 configurations the patch routine passes its adaptive point of no return during an earlier crisis than the one in which it fails.
+3. **Behavioral.** The incumbent patch routine leaves the adaptive kernel while its patches still succeed. In an exact sweep of 1,944 configurations it survives all 12 crises in 18, and the adaptive kernel contains the start in 1,555, under every modeling variant. How often the routine passes its adaptive point of no return during an earlier crisis than the one in which it fails depends on when authorization can be decided: 927 configurations if only at a crisis's first tick, 410 if at any tick.
 4. **Multi-agent.** When three agents share one serial recovery chain, a single partner whose routine keeps patching bounds the survival of the joint system, whatever the others do, and an adversarial partner can always do the same (Theorem VI.4, machine-checked). An independent seed escapes this, and governance decides whether the seed can be used: under unanimity an adversary's veto produces a severity-3 state, proved in general (Theorem VI.5) and found in 297 of 324 swept configurations.
 
 None of this says that every successful adaptation creates a ratchet, or that collapse is inevitable under unrestricted adaptation. The inevitability is conditional on a specified sequence of patching actions.
+
+**Modeling choices.** Where A0–A3 do not settle a modeling choice, the model does not pick one. Each such choice is a reported variant, and every result below is either shown to hold in all variants or stated with the choice it depends on.
 
 ## VI.1. Local escape and long-run viability
 
@@ -57,7 +59,7 @@ A crisis lasts $`D`$ ticks. Its available transitions are:
 - **Patch:** traverses the whole chain ($`\ell_0+n\delta`$ ticks of serial work) and adds a stage.
 - **Seed escape:** takes one tick.
 - **Prune:** a capability-changing move that takes $`\ell_0+1+\lambda n`$ ticks and 2 reserves and resets the depth.
-- **Authorize the seed:** a capability-changing move, decided at the first tick of a crisis, that costs 3 reserves and takes effect at the next crisis.
+- **Authorize the seed:** a capability-changing move that costs 3 reserves and takes effect at the next crisis. It is decided at the first tick of a crisis or at any tick, a reported variant.
 
 At the deadline an unfinished escape takes the organization down. A finished one starts the next crisis with one unit of income. The null action, which does no work this tick, is always admissible (**A1**).
 
@@ -69,6 +71,8 @@ At the deadline an unfinished escape takes the organization down. A finished one
 | $`\mathcal U_{\mathrm{phys}}`$ | adds the seed whenever it is physically present, authorized or not |
 
 Each class's kernel is $`\mathcal K`$ of its system (Definition 2). Every organizational step is a physical step (**A3**, exactly), so **Proposition 1** holds: $`\mathcal K_{\mathrm{fixed}}\subseteq\mathcal K_{\mathrm{policy}}\subseteq\mathcal K_{\mathrm{adapt}}\subseteq\mathcal K_{\mathrm{phys}}`$ (`class_nesting`). The kernel equals a computable backward recursion (`class_ker_iff`).
+
+**Two choices A0–A3 do not settle.** (1) *When authorization can be decided*: only at the first tick of a crisis, or at any tick. Either way it takes effect at the next crisis. (2) *Whether a transition in flight can be abandoned*, discarding its progress, to start another. Both choices only add admissible actions, so each class's kernel can only grow when either is allowed (`variant_mono`). The model, the theorems and the sweep cover all four combinations.
 
 **Theorem VI.2 (organizational lock-in witness).** Call a state *blocked* if it meets three conditions: no escape is complete; every organizational transition that could still be started needs more ticks than are left; and nothing in flight can finish in time. Then the state is outside $`\mathcal K_{\mathrm{adapt}}`$, and hence outside $`\mathcal K_{\mathrm{policy}}`$ and $`\mathcal K_{\mathrm{fixed}}`$, for every horizon that reaches the deadline. It is outside $`\mathcal K_{\mathrm{phys}}`$ too when no seed is present. Where the seed escape is admissible, the state is in the kernel at every horizon.
 
@@ -85,7 +89,7 @@ The organizational restriction is explicit: an **independent seed** that is phys
 | 2 | 6 | feasible | 7 | feasible |
 | 3 | 8 | **infeasible** | 9 | **infeasible** |
 
-The rows are computed by running the tick system for one crisis. These are proved from the modeled transitions in `Paradox/RatchetModel.lean`:
+The rows are computed by running the tick system for one crisis. These are proved from the modeled transitions in `Paradox/RatchetModel.lean`, in all four variants:
 
 - The patch routine survives three crises and fails in the fourth (`ref_patch_only`).
 - After three crises it reaches depth 3 with reserves 4 and no authorization (`ref_trajectory`).
@@ -96,7 +100,7 @@ The rows are computed by running the tick system for one crisis. These are prove
 
 Three counter-forces break the ratchet in the reference case:
 
-- **Early pruning.** Patching twice and pruning at depth 2 is viable at every horizon from depth 0 with no reserves: its trajectory enters a closed orbit of the tick system, checked state by state (`ref_prune_sustainable`, via `orbitOK_sound` and `invariant_viable`).
+- **Early pruning.** Patching twice and pruning at depth 2 is viable at every horizon from depth 0 with no reserves, in every variant: its trajectory enters a closed orbit of the tick system, checked state by state (`ref_prune_sustainable`, via `orbitOK_sound`, `invariant_viable` and `variant_mono`).
 - **Independent startup.** Once the seed is authorized, every escape takes one tick whatever the chain's depth, and the state is in the kernel at every horizon (`seed_sustainable`).
 - **Sustainable landing.** Both of the above are repeatable viable policies; both are proved invariant.
 
@@ -113,53 +117,57 @@ The sweep covers:
 - the seed absent or present;
 - starting reserves 0, 2 or 4.
 
-That is 1,944 configurations, each over 12 crises. All four kernels are computed by exact backward recursion on the tick-level systems (`argVI`, `results/argVI_output.txt`). Argument VI's sweep is computed in Lean only.
+That is 1,944 configurations, each over 12 crises, under each of the four variants. All four kernels are computed by exact backward recursion on the tick-level systems (`argVI`, `results/argVI_output.txt`). Argument VI's sweep is computed in Lean only.
 
-**Nesting.** At every state reachable under physical actions, for the remaining horizon, the four kernels nest: 58,904,490 checks, no violation (Proposition 1).
+**Nesting.** At every state reachable under physical actions, for the remaining horizon, the four kernels nest in every variant, with no violation (Proposition 1). That is 58,904,490 checks without abandonment and 98,522,037 with it.
 
-**The bound is exact.** The patch routine fails in crisis $`\lfloor(D-\ell_0)/\delta\rfloor+1`$ in all 1,926 configurations where that crisis falls within the horizon.
+### Results that hold in every variant
 
-**Severity at the start**, of 1,944:
+- **The bound is exact.** The patch routine fails in crisis $`\lfloor(D-\ell_0)/\delta\rfloor+1`$ in all 1,926 configurations where that crisis falls within the horizon.
+- **Severity at the start**, of 1,944:
 
-| $`\sigma`$ | 0 | 1 | 2 | 3 | 4 |
-|---|---|---|---|---|---|
-| Configurations | 18 | 0 | 1,537 | 129 | 260 |
+  | $`\sigma`$ | 0 | 1 | 2 | 3 | 4 |
+  |---|---|---|---|---|---|
+  | Configurations | 18 | 0 | 1,537 | 129 | 260 |
 
-Severity 1 never occurs. $`\mathcal U_{\mathrm{policy}}`$ differs from $`\mathcal U_{\mathrm{fixed}}`$ only by using an already-authorized seed, and no configuration starts with one. Every rescue needs a capability-changing move.
+  Severity 1 never occurs. $`\mathcal U_{\mathrm{policy}}`$ differs from $`\mathcal U_{\mathrm{fixed}}`$ only by using an already-authorized seed, and no configuration starts with one. Every rescue needs a capability-changing move.
+- **The patch routine's path.** It survives all 12 crises in 18 configurations; in those the horizon is too short to reach the bound. It fails in 1,926. In 389 its starting state is already outside $`\mathcal K_{\mathrm{adapt}}`$. In the other 1,537 it passes its adaptive point of no return while still functioning: **its patches keep succeeding after the point of no return**.
+- **Points of no return** $`t^*_k`$, the last tick at which the patch routine's path is in $`\mathcal K_k`$. The order $`t^*_{\mathrm{fixed}}\le t^*_{\mathrm{policy}}\le t^*_{\mathrm{adapt}}\le t^*_{\mathrm{phys}}`$ holds in all 1,944 configurations, with $`t^*_{\mathrm{policy}}=t^*_{\mathrm{fixed}}`$ in all of them.
+- **Rules surviving all 12 crises** (of 1,944):
 
-**Points of no return on the patch routine's path.** Along the patch routine's own path, each class has a point of no return $`t^*_k`$, the last tick at which the path is in $`\mathcal K_k`$. The order $`t^*_{\mathrm{fixed}}\le t^*_{\mathrm{policy}}\le t^*_{\mathrm{adapt}}\le t^*_{\mathrm{phys}}`$ holds in all 1,944 configurations, with $`t^*_{\mathrm{policy}}=t^*_{\mathrm{fixed}}`$ in all of them. The patch routine survives all 12 crises in 18 configurations; in those the horizon is too short to reach the bound. It fails in 1,926:
+  | Rule | Survives |
+  |---|---|
+  | Patch routine ($`\mathcal U_{\mathrm{fixed}}`$) | 18 |
+  | Prune at depth 1 (fails when pruning is unaffordable / patches instead) | 1,040 / 1,424 |
+  | Prune at depth 2 (either reading) | 1,152 |
+  | Authorize the seed early | 789 |
+  | Some rule in $`\mathcal U_{\mathrm{adapt}}`$ (full lookahead) | 1,555 |
 
-- in 389 its starting state is already outside $`\mathcal K_{\mathrm{adapt}}`$;
-- in 1,537 it passes $`t^*_{\mathrm{adapt}}`$ later, while still functioning. The first state outside $`\mathcal K_{\mathrm{adapt}}`$ has severity 3 in 529 of these and severity 4 in 1,008.
-- In 927 of those 1,537 the path passes $`t^*_{\mathrm{adapt}}`$ during an earlier crisis than the one it fails in. **Patches keep succeeding after the point of no return**, so success is no evidence of recoverability. In the other 610 it passes $`t^*_{\mathrm{adapt}}`$ during the failing crisis.
+- **Sensitivity to the cost of pruning.** The adaptive kernel contains the start in 619 of 648 configurations when pruning time does not depend on depth ($`\lambda=0`$), 516 when it grows with $`\delta`$, and 420 when it grows with $`2\delta`$.
+- **Ratchet avoidance.** In 1,555 configurations some rule of the adaptive class survives all 12 crises, so the sweep refutes a universal-ratchet reading.
 
-Severities along the path while the organization functions, with repeats removed:
+### Results that depend on a modeling choice
 
-| Path | Configurations |
-|---|---|
-| $`2\to4`$ | 1,008 |
-| $`2\to3\to4`$ | 529 |
-| $`4`$ | 260 |
-| $`3\to4`$ | 129 |
-| $`0`$ | 18 |
+**When authorization can be decided** moves the adaptive point of no return:
 
-The climb is $`2\to3`$, not $`0\to1\to2\to3`$. The incumbent is never in its own kernel unless it survives outright, and the policy class adds nothing without an authorized seed. Severity 4 follows severity 3 within the failing crisis, once the doomed patch is under way: a transition in flight cannot be abandoned, so even the seed can no longer be started.
+| | First tick of a crisis | Any tick |
+|---|---|---|
+| Path passes $`t^*_{\mathrm{adapt}}`$ in an earlier crisis than the failing one | 927 | 410 |
+| ... during the failing crisis | 610 | 1,127 |
+| Reference path: $`t^*_{\mathrm{adapt}}`$ | 14 (first tick of crisis 2) | 20 (last tick of crisis 2) |
 
-**The reference path**, severity by tick (one group per crisis): `2222222|2222222|2333333|3444444|4`. The adaptive point of no return is $`t^*_{\mathrm{adapt}}=14`$, the first tick of crisis 2: the last moment the seed can be authorized in time for crisis 3. The physical point of no return is $`t^*_{\mathrm{phys}}=21`$, the first tick of crisis 3, before the doomed patch starts. The patch of crisis 2 still succeeds at tick 19, five ticks after the adaptive point of no return.
+The point of no return is the last moment the seed can still be authorized in time. That moment is the first tick of the previous crisis in one variant and its last tick in the other.
 
-**Rules surviving all 12 crises** (of 1,944):
+**Whether work in flight can be abandoned** decides what happens after the point of no return:
 
-| Rule | Survives |
-|---|---|
-| Patch routine ($`\mathcal U_{\mathrm{fixed}}`$) | 18 |
-| Prune at depth 1 | 1,040 |
-| Prune at depth 2 | 1,152 |
-| Authorize the seed early | 789 |
-| Some rule in $`\mathcal U_{\mathrm{adapt}}`$ (full lookahead) | 1,555 |
+| | Cannot be abandoned | Can be abandoned |
+|---|---|---|
+| Severity at the first state outside $`\mathcal K_{\mathrm{adapt}}`$: 3 / 4 | 529 / 1,008 | 834 / 703 |
+| Severity paths while up | $`2\to4`$ 1,008; $`2\to3\to4`$ 529; $`4`$ 260; $`3\to4`$ 129; $`0`$ 18 | $`2\to3`$ 834; $`2\to4`$ 703; $`4`$ 260; $`3`$ 129; $`0`$ 18 |
+| Reference path, by tick | `2222222\|2222222\|2333333\|3444444\|4` | `2222222\|2222222\|2333333\|3333333\|4` |
+| Reference $`t^*_{\mathrm{phys}}`$ | 21 | 27 |
 
-**Sensitivity to the cost of pruning.** The adaptive kernel contains the start in 619 of 648 configurations when pruning time does not depend on depth ($`\lambda=0`$), 516 when it grows with $`\delta`$, and 420 when it grows with $`2\delta`$.
-
-**Ratchet avoidance.** The sweep refutes a universal-ratchet reading: in 1,555 configurations some rule of the adaptive class survives all 12 crises.
+Without abandonment, severity 4 follows severity 3 within the failing crisis: once the doomed patch is under way the seed can no longer be started. With abandonment the physical class can drop the patch and use the seed until the last tick, so the path stays at severity 3 until it fails. The $`3\to4`$ climb is a consequence of that modeling choice, not of the framework.
 
 ## VI.6. Relation to existing research
 
@@ -177,9 +185,9 @@ Within this program, the ratchet links three earlier results. Argument III's res
 
 **"The physical benchmark is too generous."** The physical class pays the same costs and latencies and faces the same dynamics. Its only extra action is the unauthorized seed, which is physically present. Without the seed, the reference state is severity 4.
 
-**"A transition in flight could be abandoned."** In the model it cannot, which is why severity 4 follows severity 3 within the failing crisis. Allowing abandonment would add actions to every class and could only enlarge the kernels; it would not move the adaptive point of no return, which comes earlier.
+**"A transition in flight could be abandoned."** That is one of the two reported variants. Allowing it only adds actions (`variant_mono`). It leaves every start-state result and the adaptive point of no return unchanged, and removes the severity-4 tail after severity 3.
 
-**"Couldn't early pruning have prevented the failure?"** Yes. Pruning at depth 2 is sustainable in the reference case (proved), and the adaptive kernel contains the start there. The lock-in is a consequence of the patch routine, not of the environment alone. That is the behavioral claim.
+**"Couldn't early pruning have prevented the failure?"** Yes. Pruning at depth 2 is sustainable in the reference case, in every variant (proved), and the adaptive kernel contains the start there. The lock-in is a consequence of the patch routine, not of the environment alone. That is the behavioral claim.
 
 **"Outside the kernel means certain failure."** Only in this deterministic model. Under uncertainty, leaving a robust infinite-horizon kernel means indefinite survival can no longer be guaranteed (I.3.8); a realized path can still be lucky.
 
@@ -202,8 +210,10 @@ Three agents each own one segment of a single serial recovery chain: the seed st
 |---|---|
 | Agent 1 | $`\mathcal U_{\mathrm{adapt}}`$ |
 | Partner in $`\mathcal U_{\mathrm{adapt}}`$ (C, cooperative) | its actions are chosen together with agent 1's |
-| Partner in $`\mathcal U_{\mathrm{fixed}}`$ (N, neutral) | runs its incumbent routine and meta-policy $`(\pi_0,\mu_0)`$: always patch, or prune at depth 2; votes yes |
+| Partner in $`\mathcal U_{\mathrm{fixed}}`$ (N, neutral) | runs its incumbent routine and meta-policy $`(\pi_0,\mu_0)`$: always patch, or prune at depth 2; the routine votes yes or votes no (a reported variant) |
 | Adversarial partner (A) | not a controller: its action is a disturbance (I.3.8) ranging over a disturbance set, by default any segment action and vote except withholding its segment (covert); an overt adversary may also withhold |
+
+Two choices are reported as variants: whether a neutral routine votes yes or no on a proposal, and whether an adversary is covert or overt. The tables below use yes-voting routines and covert adversaries unless stated; the other variants are reported alongside.
 
 The physical class frees every organizational restriction: routines become choices and the seed is admissible without authorization. Adversaries are part of the environment, so they remain (I.3.3, "what $`\mathcal U_{\mathrm{phys}}`$ relaxes"). Every organizational step is a physical step (**A3**, `a3_phys`). Assignments are named by the roles of agents 1, 2 and 3, so CNA is agent 1, a neutral partner 2 and an adversarial partner 3.
 
@@ -231,7 +241,7 @@ Segments are owned. Agent 1 can prune only its own, so pruning is a private cost
 
 **Theorem VI.5 (seed governance).**
 (a) Where the seed is admissible, the joint system survives at every horizon, whatever the classes and disturbances (`seed_sustainable`). If authorization passes (unilateral governance, or unanimity with consenting partners), fixed routines and covert adversaries restore their segments, and $`\ell_0+2+\alpha\le D`$, then the origin is in the robust kernel at every horizon. The reason is that proposing in the first crisis is a step all of whose successors are (`early_authorization`, from Proposition 3′, `robust_strengthened`).
-(b) Under unanimity, with no unauthorized access, an adversarial partner 3 facing a neutral partner 2 that always patches bounds survival by $`N_2`$: patching and voting no are in its disturbance set (`veto_ratchet`).
+(b) Under unanimity, with no unauthorized access, an adversarial partner 3 facing a neutral partner 2 that always patches bounds survival by $`N_2`$: patching and voting no are in its disturbance set (`veto_ratchet`). The same bound holds when the partners are neutral routines and either routine votes no (`two_patchers`).
 (c) In the same setting the physical class survives at every horizon (`veto_severity`). The exclusion is a severity-3 state created by governance, not by physics.
 (d) An overt adversary, one that may withhold its segment, defeats every functioning state without an admissible seed within one crisis (`overt_lockin`). With a seed present, the physical class still survives (`overt_physical`).
 
@@ -243,6 +253,7 @@ Segments are owned. Agent 1 can prune only its own, so pruning is a private cost
 | No seed, physical class | 12 | 12 | 12 | 3 | 3 | 1 |
 | Unilateral | 12 | 12 | 12 | 12 | 12 | 12 |
 | Unanimous | 12 | 12 | 12 | 3 | 2 | 1 |
+| Unanimous, neutral routines vote no | 12 | 3 | 2 | 3 | 2 | 1 |
 | Unanimous, physical class | 12 | 12 | 12 | 12 | 12 | 12 |
 
 These reference results are proved:
@@ -271,13 +282,15 @@ The sweep covers $`D=4,\dots,12`$, $`\ell_0=1,\dots,4`$, $`\delta=1,\dots,3`$ an
 | No seed, prune at depth 2 | 279 | 168 | 98 | 0 | 0 | 0 |
 | Unilateral (either routine) | 297 | 297 | 297 | 270 | 270 | 234 |
 | Unanimous (either routine) | 297 | 297 | 297 | 0 | 0 | 0 |
+| Unanimous, neutral routines vote no, always patch | 297 | 0 | 0 | 0 | 0 | 0 |
+| Unanimous, neutral routines vote no, prune at depth 2 | 297 | 168 | 98 | 0 | 0 | 0 |
 
 Five results stand out.
 
 1. **One patching partner is enough.** With no seed, no assignment containing an always-patching neutral partner survives 12 crises. The bounds of Theorem VI.4 hold in all 324 configurations. CNN equals $`N_2`$ in all 324; CCN equals $`N_1`$ in 219, because agent 1's own segment usually costs something too.
 2. **The neutral ratchet is severity 3, the adversarial one severity 4.** With no seed, CCN and CNN each fail in all 324 configurations. They are severity 3 in 279 (freeing the routine physically rescues the system) and severity 4 in 45. With an adversary the physical class does not help: CCA, CNA and CAA are severity 4 in all 324.
 3. **Indifference is often as damaging as hostility.** With no seed, replacing the neutral partner 3 by an adversary leaves survival unchanged in 216 of 324 configurations. When the neutral partner prunes at depth 2, the adversary becomes decisive: CNN survives in 98 configurations, CNA in none.
-4. **A veto turns the seed off.** Under unanimity an adversary's veto gives exactly the no-seed survival in all 324 configurations. CNN survives all 12 crises and CNA does not in 297; the physical class survives in all 297 of them (severity 3).
+4. **Any partner that does not vote yes turns the seed off.** Under unanimity an adversary's veto gives exactly the no-seed survival in all 324 configurations. With yes-voting routines, CNN survives all 12 crises and CNA does not in 297, and the physical class survives in all 297 of them (severity 3). With routines that vote no, the neutral partner blocks the seed just as the adversary does: CNN gets exactly its no-seed survival in all 324 configurations and never survives 12 crises. Whether the veto's harm can be attributed to hostility is therefore a modeling choice. What holds in both variants is that under unanimity, any partner that does not vote yes removes the only escape from the ratchet.
 5. **Lookahead is required.** Under unilateral governance CNA survives in 270 configurations. The early-authorization condition $`\ell_0+2+\alpha\le D`$ holds in 234, and all 234 survive (Theorem VI.5(a)); 36 more survive with later authorization. A one-crisis-lookahead agent 1 survives in none.
 
 An overt adversary, one that may withhold its segment, leaves no configuration surviving even the first crisis under any governance rule.
@@ -291,6 +304,8 @@ The adversary is handled by the robust kernel of I.3.8, the framework's own trea
 ## VI.12. Strongest objections (Part II)
 
 **"A neutral partner would prune if it saw the deadline."** Then it would not be in $`\mathcal U_{\mathrm{fixed}}`$. The prune routine shows the effect: with no seed, CNN survival rises from 0 to 98 of 324 configurations.
+
+**"A neutral partner would vote for the seed."** Maybe; that is the reported vote variant. If its routine votes no, unanimity makes it exactly as harmful as an adversary's veto.
 
 **"The adversary is too strong: it sees the cooperative moves."** That is the robust kernel's information structure (I.3.8), the conservative choice. The bounds of Theorems VI.4(c) and VI.5(b) do not use the information, because the adversary's strategy (patch and veto) is fixed in advance.
 
@@ -308,8 +323,8 @@ Successful short-term escape consumes the feasibility of future escape when each
 
 - **Mathematical:** strictly positive accumulation of unavoidable latency exceeds a bounded execution window, by an exact crisis (Theorem VI.1).
 - **Constructive:** in the four control classes, three successful patching escapes are followed by a severity-3 state, proved from the modeled transitions (Theorem VI.2 and the reference model).
-- **Behavioral:** the patch routine survives 12 crises in 18 of 1,944 configurations, while the adaptive kernel contains the start in 1,555. In 927 the routine passes its adaptive point of no return during an earlier crisis than the one it fails in, while its patches still succeed.
-- **Multi-agent:** on a shared chain, one partner whose routine keeps patching imposes the ratchet on the joint system (Theorem VI.4). The result is severity 3, structural, because the routine is organizational. With no seed, replacing that indifferent partner by an adversary changes nothing in 216 of 324 configurations. An independent seed escapes the ratchet; under unanimity an adversary's veto removes it, creating severity 3 (Theorem VI.5).
+- **Behavioral:** in every variant, the patch routine survives 12 crises in 18 of 1,944 configurations, the adaptive kernel contains the start in 1,555, and in 1,537 the routine passes its adaptive point of no return while its patches still succeed. How early depends on when authorization can be decided.
+- **Multi-agent:** on a shared chain, one partner whose routine keeps patching imposes the ratchet on the joint system (Theorem VI.4). The result is severity 3, structural, because the routine is organizational. With no seed, replacing that indifferent partner by an adversary changes nothing in 216 of 324 configurations. An independent seed escapes the ratchet. Under unanimity any partner that does not vote yes removes the seed: an adversary's veto (severity 3, Theorem VI.5), or a neutral routine that votes no.
 
 ## The arguments together
 

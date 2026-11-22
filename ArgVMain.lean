@@ -8,18 +8,20 @@ open Paradox.ConcessionModel
 def padL (s : String) (n : Nat) : String := String.mk (List.replicate (n - s.length) ' ') ++ s
 def padR (s : String) (n : Nat) : String := s ++ String.mk (List.replicate (n - s.length) ' ')
 
-@[noinline] def kernelsA (r₀ P T : Nat) : List Bool × List Bool :=
-  (classes.map fun k => kernelA ⟨P, none⟩ k T 0 (preA r₀),
-   classes.map fun k => kernelA ⟨P, none⟩ k T 1 (postConc r₀))
+@[noinline] def kernelsA (ca se : Bool) (r₀ P T : Nat) : List Bool × List Bool :=
+  (classes.map fun k => kernelA ⟨P, none, ca, se⟩ k T 0 (preA r₀),
+   classes.map fun k => kernelA ⟨P, none, ca, se⟩ k T 1 (postConc r₀))
 
-def sweepA : IO Unit := do
+def sweepAHead : IO Unit := do
   IO.println "Sweep A: structural concessions"
   IO.println s!"  state (x, O, pi, q): reserves; scarred; policy aligned; obligation pending, implementation move in flight; clean fix cost {C_FIX}, output {OUT_FIX}; concession cost {C_CONC}, output {OUT_CONC} and a latency-1 implementation move per realignment; upkeep {U}; reserves capped at {RMAX}"
   IO.println "  forced switches at operating ticks P, 2P, ...; starting reserves r0 = 1..10, horizons T = 4..24"
   IO.println "  crossover T*: largest horizon at which the post-concession state is in the policy kernel (all = through 24, none = not even 4)"
+
+def sweepAVariant (ca se : Bool) : IO Unit := do
   IO.println ("CROSSOVER r0 \\ P " ++ " ".intercalate (ps.map fun P => padL (toString P) 4))
   for r0 in r0s do
-    IO.println (s!"CROSSOVER r0={padR (toString r0) 2}   " ++ " ".intercalate (ps.map fun P => padL (crossover r0 P) 4))
+    IO.println (s!"CROSSOVER r0={padR (toString r0) 2}   " ++ " ".intercalate (ps.map fun P => padL (crossover ca se r0 P) 4))
   let mut concOnly := 0
   let mut both := 0
   let mut cleanOnly := 0
@@ -27,8 +29,8 @@ def sweepA : IO Unit := do
   for r0 in r0s do
     for P in ps do
       for T in ts do
-        let c := concOk r0 P T
-        let f := cleanOk r0 P T
+        let c := concOk ca se r0 P T
+        let f := cleanOk ca se r0 P T
         if c && f then both := both + 1
         else if c then concOnly := concOnly + 1
         else if f then cleanOnly := cleanOnly + 1
@@ -38,7 +40,7 @@ def sweepA : IO Unit := do
   let mut scarCells := 0
   for r0 in r0s do
     for P in ps do
-      match scarWindow r0 P with
+      match scarWindow ca se r0 P with
       | none => pure ()
       | some w =>
         bothCells := bothCells + 1
@@ -55,7 +57,7 @@ def sweepA : IO Unit := do
     for P in ps do
       let mut digits := ""
       for T in ts do
-        let (kp, kc) := kernelsA r0 P T
+        let (kp, kc) := kernelsA ca se r0 P T
         for ks in [kp, kc] do
           for i in [0:3] do
             checks := checks + 1
@@ -71,6 +73,13 @@ def sweepA : IO Unit := do
   IO.println s!"SEVERITY post-concession state: {fmt sevPost} (of {sevPost.foldl (· + ·) 0})"
   IO.println "SHIFT post-concession severity by horizon T = 4..24 (one digit per T):"
   for r in rows do IO.println r
+
+def sweepA : IO Unit := do
+  sweepAHead
+  IO.println "VARIANTS two modeling choices A0-A3 do not settle; Sweep A is reported under all four combinations"
+  for (ca, se) in [(true, true), (false, true), (true, false), (false, false)] do
+    IO.println s!"VARIANT a forced switch {if ca then "cancels" else "does not cancel"} a realignment in flight; an uncleared obligation {if se then "means seizure" else "suspends operations"}"
+    sweepAVariant ca se
 
 def sweepB : IO Unit := do
   IO.println "Sweep B: calm-period erosion"

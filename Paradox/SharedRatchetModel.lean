@@ -117,8 +117,12 @@ def myopic (p : Par) (r₂ r₃ : JSt → PMove) (s₂ s₃ : Stance) : Nat → 
           let y := fJ p s m₁ (pick s₂ (r₂ s) dummyP w₂) (pick s₃ (r₃ s) dummyP w₃)
           if y.up then min acc (myopic p r₂ r₃ s₂ s₃ k y) else acc) acc) k
 
-def rout2 (prune2 : Bool) : JSt → PMove := if prune2 then prune2Routine (·.n₂) else patchRoutine
-def rout3 (prune2 : Bool) : JSt → PMove := if prune2 then prune2Routine (·.n₃) else patchRoutine
+/-- A fixed partner's routine: patch, or prune at depth 2; it votes `vote` on a proposal (a modeling
+choice reported as a variant). With `vote = true` these are `patchRoutine` and `prune2Routine`. -/
+def routV (prune2 vote : Bool) (get : JSt → Nat) : JSt → PMove :=
+  fun s => ⟨if prune2 && decide (2 ≤ get s) then .prune else .patch, vote⟩
+def rout2 (prune2 : Bool) (vote : Bool := true) : JSt → PMove := routV prune2 vote (·.n₂)
+def rout3 (prune2 : Bool) (vote : Bool := true) : JSt → PMove := routV prune2 vote (·.n₃)
 
 /-- Class/stance assignments of partners 2 and 3: C = `𝒰_adapt`, N = `𝒰_fixed`, A = adversary. -/
 def profs : Array (String × Stance × Stance) :=
@@ -130,8 +134,9 @@ def govName : Gov → String
   | .unilateral => "unilateral"
   | .unanimous => "unanimous"
 
-@[noinline] def allLayers (p : Par) (prune2 : Bool) (st : Array JSt) : Array (Array (Array Bool)) :=
-  profs.map fun (_, s₂, s₃) => layers p (rout2 prune2) (rout3 prune2) s₂ s₃ st
+@[noinline] def allLayers (p : Par) (prune2 : Bool) (st : Array JSt) (vote : Bool := true) :
+    Array (Array (Array Bool)) :=
+  profs.map fun (_, s₂, s₃) => layers p (rout2 prune2 vote) (rout3 prune2 vote) s₂ s₃ st
 
 /-- The physical class of each assignment: routines freed, the seed admissible unauthorized. -/
 @[noinline] def physLayers (p : Par) (prune2 : Bool) : Array (Array (Array Bool)) :=
@@ -159,6 +164,7 @@ structure CfgRes where
   physUnan : Nat       -- physical class of CNA under unanimity
   physNone : Array Nat -- physical class of each assignment with no seed (routine patch)
   overt : Array Nat    -- overt adversary: CCA, CNA, CAA under each governance rule
+  unanNo : Array Nat   -- unanimity with neutral routines voting no: routine * 6 + assignment
   myo : Nat
 
 @[noinline] def evalCfg (D l0 d lam : Nat) : CfgRes := Id.run do
@@ -183,8 +189,11 @@ structure CfgRes where
     for i in [3, 4, 5] do
       let (_, s₂, s₃) := profs[i]!
       overt := overt.push (horizon (layers po (rout2 false) (rout3 false) s₂ s₃ st))
+  let pu := mkPar D l0 d lam .unanimous
+  let stu := reachable pu
+  let unanNo := (allLayers pu false stu false ++ allLayers pu true stu false).map horizon
   let myo := myopic (mkPar D l0 d lam .unilateral) (rout2 false) (rout3 false) .fixed .adv H origin
-  return ⟨hz, checks, viol, physUnan, physNone, overt, myo⟩
+  return ⟨hz, checks, viol, physUnan, physNone, overt, unanNo, myo⟩
 
 def bnd (D l0 g : Nat) : Nat := (D - l0) / g + 1
 
@@ -200,6 +209,8 @@ def refLines : IO Unit := do
     IO.println s!"GOV {govName gov}: {row (allLayers p false (reachable p))}"
   IO.println s!"GOV none, physical class (routines freed; no seed present): {row (physLayers (mkPar 7 2 2 2 .noSeed) false)}"
   IO.println s!"GOV unanimous, physical class (routines freed; seed admissible unauthorized): {row (physLayers (mkPar 7 2 2 2 .unanimous) false)}"
+  let pu := mkPar 7 2 2 2 .unanimous
+  IO.println s!"GOV unanimous, neutral routines vote no: {row (allLayers pu false (reachable pu) false)}"
   let pu := mkPar 7 2 2 2 .unilateral
   let lay := layers pu (rout2 false) (rout3 false) .fixed .adv (reachable pu)
   let prev := lay[H - 1]!
@@ -236,12 +247,17 @@ def refLines : IO Unit := do
   IO.println s!"VETO unanimity, routine patch: CNN survives all {H} cycles and CNA does not in {veto.size}; the physical class survives all {H} in {countIf veto fun r => r.physUnan == H} of them (severity 3)"
   let early := both.filter fun (c, _) => decide (c.2.1 + ALPHA + 2 ≤ c.1)
   IO.println s!"UNILATERAL CNA, routine patch: survives all {H} cycles in {countIf res fun r => h r 4 1 == H}; early-authorization condition l0+alpha+2 <= D holds in {early.size}, of which surviving {countIf early fun (_, r) => h r 4 1 == H}; one-cycle lookahead survives all {H} in {countIf res fun r => r.myo == H}"
+  for ri in [0:2] do
+    let rname := if ri == 0 then "patch" else "prune2"
+    let cells := (List.range 6).map fun pi => s!"C{profs[pi]!.1} {countIf res fun r => r.unanNo[ri * 6 + pi]! == H}"
+    IO.println s!"VOTE neutral routines vote no, gov=unanimous routine={rname}: {", ".intercalate cells} (configurations surviving all {H} crises, of {n})"
+  IO.println s!"VOTE neutral routines vote no, routine patch: CNN survives all {H} crises in {countIf res fun r => r.unanNo[2]! == H}, CNA in {countIf res fun r => r.unanNo[4]! == H}; CNN survival equals its no-seed survival in {countIf res fun r => r.unanNo[2]! == h r 2}"
   let ov := (List.range 3).map fun gi => s!"{govName govs[gi]!} {", ".intercalate ((List.range 3).map fun j => s!"C{profs[3 + j]!.1} {countIf res fun r => r.overt[gi * 3 + j]! == H}")}"
   IO.println s!"OVERT adversary (may withhold its segment), routine patch: surviving all {H} cycles: {"; ".intercalate ov}; surviving the first cycle: {countIf res fun r => r.overt.any (· > 0)} of {n} under any rule"
 
 def multiMain : IO Unit := do
   IO.println "Argument VI, Part II: the joint system of three agents on a shared recovery chain"
-  IO.println s!"  agent 1 in the adapt class; partners 2 and 3 each adapt (C), fixed (N: incumbent routine, votes yes) or adversarial (A: a disturbance, I.3.8, covert unless stated); authorization costs {ALPHA} ticks of the current crisis and takes effect next cycle; horizon {H} cycles"
+  IO.println s!"  agent 1 in the adapt class; partners 2 and 3 each adapt (C), fixed (N: incumbent routine, votes yes unless stated) or adversarial (A: a disturbance, I.3.8, covert unless stated); authorization costs {ALPHA} ticks of the current crisis and takes effect next cycle; horizon {H} cycles"
   refLines
   let mut base : Array (Nat × Nat × Nat × Nat) := #[]
   for D in [4:13] do

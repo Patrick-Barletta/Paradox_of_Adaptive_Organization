@@ -61,14 +61,20 @@ def PRUNE_COST : Nat := 2
 def AUTH_COST : Nat := 3
 def H : Nat := 12
 
-/-- Deadline `D` per crisis, seed stage `l0`, patch stage `delta`, prune slope `lam`, and whether the
-independent seed is physically present. -/
+/-- Deadline `D` per crisis, seed stage `l0`, patch stage `delta`, prune slope `lam`, whether the
+independent seed is physically present, and two modeling choices that A0–A3 do not settle, reported
+as variants: `authAny` (authorization may be decided at any tick, not only at the first tick of a
+crisis; it takes effect at the next crisis either way) and `abandon` (a new transition may be started
+while one is in flight, discarding its progress). Both only add admissible actions
+(`variant_mono`). -/
 structure RPar where
   D : Nat
   l0 : Nat
   delta : Nat
   lam : Nat
   seed : Bool
+  authAny : Bool
+  abandon : Bool
   deriving DecidableEq, Repr
 
 /-- The transition in flight and its progress (units of work completed). -/
@@ -153,17 +159,17 @@ def opCost : Op → Nat
   | .prune => PRUNE_COST
   | _ => 0
 
-/-- Physical realizability: work can be continued only while in flight, a transition can be
-started only when nothing is in flight and the escape is not done, the reserves must cover the
-costs, and authorization needs a present, not yet authorized seed and is decided at the first tick
-of a crisis (it takes effect at the next one: a latency of one crisis). -/
+/-- Physical realizability: work can be continued only while in flight; a transition can be
+started only when the escape is not done and nothing is in flight (unless `abandon`); the reserves
+must cover the costs; authorization needs a present, not yet authorized seed, and is decided at the
+first tick of a crisis (at any tick if `authAny`). -/
 def realizable (p : RPar) (s : RSt) (a : Act) : Bool :=
   (match a.op with
    | .wait => true
    | .cont => inFlight s.work && !s.done
-   | _ => !inFlight s.work && !s.done) &&
+   | _ => (!inFlight s.work || p.abandon) && !s.done) &&
   decide ((if a.authz then AUTH_COST else 0) + opCost a.op ≤ s.r) &&
-  (!a.authz || (p.seed && !s.auth && !s.pend && s.left == p.D))
+  (!a.authz || (p.seed && !s.auth && !s.pend && (s.left == p.D || p.authAny)))
 
 /-- The class restriction on an action `(op, authz)`, given whether the seed is authorized, whether
 it is present, and the routine's action. -/
@@ -227,6 +233,24 @@ theorem class_nesting (p : RPar) {k k' : Cls} (h : k.rank ≤ k'.rank) :
     ∀ T t s, K (classSys p k) T t s → K (classSys p k') T t s :=
   nesting _ _ (fun _ h => h) (fun _ s s' hs => step_mono p h s s' hs)
 
+/-- The variant flags only add actions: with both flags off, every admissible action stays
+admissible when either flag is turned on, so each class's kernel can only grow. -/
+theorem realizable_mono (p : RPar) (aa ab : Bool) (s : RSt) (a : Act)
+    (h : realizable { p with authAny := false, abandon := false } s a = true) :
+    realizable { p with authAny := aa, abandon := ab } s a = true := by
+  rcases a with ⟨op, az⟩
+  cases op <;> cases az <;> simp_all [realizable]
+
+theorem variant_mono (p : RPar) (k : Cls) (aa ab : Bool) :
+    ∀ T t s, K (classSys { p with authAny := false, abandon := false } k) T t s →
+      K (classSys { p with authAny := aa, abandon := ab } k) T t s :=
+  nesting _ _ (fun _ h => h) (fun _ s s' hs => by
+    simp only [classSys, succ, acts, List.mem_map, List.mem_filter] at hs ⊢
+    obtain ⟨a, ⟨ha, hadm⟩, he⟩ := hs
+    refine ⟨a, ⟨ha, ?_⟩, he⟩
+    simp only [admB, Bool.and_eq_true] at hadm ⊢
+    exact ⟨realizable_mono p aa ab s a hadm.1, hadm.2⟩)
+
 /-- **A1.** The null action is admissible in every class except `fixed`, whose routine is total
 (A2). -/
 theorem a1_wait (p : RPar) (k : Cls) (hk : k ≠ .fixed) (s : RSt) : ⟨.wait, false⟩ ∈ acts p k s := by
@@ -265,7 +289,7 @@ theorem class_ker_iff (p : RPar) (k : Cls) (n t : Nat) (s : RSt) :
 time, and the seed is not admissible. -/
 def Blocked (p : RPar) (s : RSt) : Prop :=
   s.up = true ∧ s.done = false ∧ s.auth = false ∧ 1 ≤ s.left ∧
-  (s.work = .none → s.left < patchTotal p s.n ∧ s.left < pruneTotal p s.n) ∧
+  (s.left < patchTotal p s.n ∧ s.left < pruneTotal p s.n) ∧
   (∀ u, s.work = .patch u → s.left + u < patchTotal p s.n) ∧
   (∀ u, s.work = .prune u → s.left + u < pruneTotal p s.n) ∧
   s.work ≠ .seed
@@ -295,8 +319,8 @@ theorem blocked_step (p : RPar) {k : Cls} (hk : k = .adapt ∨ (k = .phys ∧ p.
     simp only [f, if_neg hnd]
     refine ⟨fun h1 => tickEnd_down p s _ _ _ _ (by omega) hd, fun h2 => ?_⟩
     rw [tickEnd_mid p s _ _ _ _ _ h2]
-    refine ⟨⟨rfl, by simp [hd], hau, by dsimp only; omega, fun hw => ?_, fun u hw => ?_, fun u hw => ?_, hseed⟩, rfl⟩
-    · have := hnone hw; dsimp only at this ⊢; omega
+    refine ⟨⟨rfl, by simp [hd], hau, by dsimp only; omega, ?_, fun u hw => ?_, fun u hw => ?_, hseed⟩, rfl⟩
+    · dsimp only; omega
     · have := hpat u hw; dsimp only at this ⊢; omega
     · have := hpru u hw; dsimp only at this ⊢; omega
   | cont =>
@@ -311,7 +335,7 @@ theorem blocked_step (p : RPar) {k : Cls} (hk : k = .adapt ∨ (k = .phys ∧ p.
       simp only [hadv]
       refine ⟨fun h1 => tickEnd_down p s _ _ _ _ (by omega) hd, fun h2 => ?_⟩
       rw [tickEnd_mid p s _ _ _ _ _ h2]
-      refine ⟨⟨rfl, by simp [hd], hau, by dsimp only; omega, fun h => by simp at h,
+      refine ⟨⟨rfl, by simp [hd], hau, by dsimp only; omega, by dsimp only; omega,
         fun v hv => ?_, fun v hv => by simp at hv, by simp⟩, rfl⟩
       simp only [Work.patch.injEq] at hv
       dsimp only; omega
@@ -322,21 +346,19 @@ theorem blocked_step (p : RPar) {k : Cls} (hk : k = .adapt ∨ (k = .phys ∧ p.
       simp only [hadv]
       refine ⟨fun h1 => tickEnd_down p s _ _ _ _ (by omega) hd, fun h2 => ?_⟩
       rw [tickEnd_mid p s _ _ _ _ _ h2]
-      refine ⟨⟨rfl, by simp [hd], hau, by dsimp only; omega, fun h => by simp at h,
+      refine ⟨⟨rfl, by simp [hd], hau, by dsimp only; omega, by dsimp only; omega,
         fun v hv => by simp at hv, fun v hv => ?_, by simp⟩, rfl⟩
       simp only [Work.prune.injEq] at hv
       dsimp only; omega
   | patch =>
     simp only [f, if_neg hnd]
-    have hw : s.work = .none := by
-      cases hw : s.work <;> simp_all [admB, realizable, inFlight]
-    have hu := (hnone hw).1
+    have hu := hnone.1
     have hadv : advance p s.n (.patch 0) = (.patch 1, false, s.n) := by
       simp only [advance]; rw [if_neg (by omega)]
     simp only [hadv]
     refine ⟨fun h1 => tickEnd_down p s _ _ _ _ (by omega) hd, fun h2 => ?_⟩
     rw [tickEnd_mid p s _ _ _ _ _ h2]
-    refine ⟨⟨rfl, by simp [hd], hau, by dsimp only; omega, fun h => by simp at h,
+    refine ⟨⟨rfl, by simp [hd], hau, by dsimp only; omega, by dsimp only; omega,
       fun v hv => ?_, fun v hv => by simp at hv, by simp⟩, rfl⟩
     simp only [Work.patch.injEq] at hv
     dsimp only; omega
@@ -345,15 +367,13 @@ theorem blocked_step (p : RPar) {k : Cls} (hk : k = .adapt ∨ (k = .phys ∧ p.
     rcases hk with rfl | ⟨rfl, hps⟩ <;> simp_all [admB, classOk]
   | prune =>
     simp only [f, if_neg hnd]
-    have hw : s.work = .none := by
-      cases hw : s.work <;> simp_all [admB, realizable, inFlight]
-    have hu := (hnone hw).2
+    have hu := hnone.2
     have hadv : advance p s.n (.prune 0) = (.prune 1, false, s.n) := by
       simp only [advance]; rw [if_neg (by omega)]
     simp only [hadv]
     refine ⟨fun h1 => tickEnd_down p s _ _ _ _ (by omega) hd, fun h2 => ?_⟩
     rw [tickEnd_mid p s _ _ _ _ _ h2]
-    refine ⟨⟨rfl, by simp [hd], hau, by dsimp only; omega, fun h => by simp at h,
+    refine ⟨⟨rfl, by simp [hd], hau, by dsimp only; omega, by dsimp only; omega,
       fun v hv => by simp at hv, fun v hv => ?_, by simp⟩, rfl⟩
     simp only [Work.prune.injEq] at hv
     dsimp only; omega
@@ -386,7 +406,7 @@ theorem blocked_not_viable (p : RPar) {k : Cls} (hk : k = .adapt ∨ (k = .phys 
 physical class), using it at each crisis and waiting otherwise is viable at every horizon. -/
 theorem seed_sustainable (p : RPar) (k : Cls) (hk : k ≠ .fixed)
     (hseed : ∀ s : RSt, s.auth = true ∨ (k = .phys ∧ p.seed = true) →
-      admB p k s ⟨.seed, false⟩ = (!inFlight s.work && !s.done)) :
+      admB p k s ⟨.seed, false⟩ = ((!inFlight s.work || p.abandon) && !s.done)) :
     ∀ n t s, s.up = true ∧ (s.auth = true ∨ (k = .phys ∧ p.seed = true)) ∧
       (s.done = true ∨ s.work = .none) → Viab (classSys p k) n t s := by
   refine invariant_viable (classSys p k) _ (fun _ h => h.1) ?_
@@ -427,14 +447,14 @@ theorem seed_sustainable (p : RPar) (k : Cls) (hk : k ≠ .fixed)
 flight. -/
 theorem phys_seed_adm (p : RPar) (hs : p.seed = true) (s : RSt) :
     s.auth = true ∨ (Cls.phys = .phys ∧ p.seed = true) →
-      admB p .phys s ⟨.seed, false⟩ = (!inFlight s.work && !s.done) := by
+      admB p .phys s ⟨.seed, false⟩ = ((!inFlight s.work || p.abandon) && !s.done) := by
   intro _
   simp [admB, realizable, opCost, hs, classOk]
 
 /-- In the adaptive class, the seed is admissible once authorized. -/
 theorem adapt_seed_adm (p : RPar) (s : RSt) :
     s.auth = true ∨ (Cls.adapt = .phys ∧ p.seed = true) →
-      admB p .adapt s ⟨.seed, false⟩ = (!inFlight s.work && !s.done) := by
+      admB p .adapt s ⟨.seed, false⟩ = ((!inFlight s.work || p.abandon) && !s.done) := by
   intro h
   have ha : s.auth = true := by simpa using h
   simp [admB, realizable, opCost, ha, classOk]
@@ -472,58 +492,69 @@ theorem orbitOK_sound (p : RPar) (k : Cls) (rule : RSt → Act) (L : List RSt)
 
 /-! ## The reference instance -/
 
-def refP : RPar := ⟨7, 2, 2, 2, true⟩
+def refP : RPar := ⟨7, 2, 2, 2, true, false, false⟩
 def refStart (R : Nat) : RSt := ⟨true, R, 7, 0, false, false, .none, false⟩
 /-- The start of the fourth crisis on the patch-only path: depth 3, reserves 4, not authorized. -/
 def regime3 : RSt := ⟨true, 4, 7, 3, false, false, .none, false⟩
 
-/-- **The patch routine** survives three crises (21 ticks) and not the fourth. -/
-theorem ref_patch_only :
-    Viab (classSys refP .fixed) 21 0 (refStart 4) ∧ ¬ Viab (classSys refP .fixed) 28 0 (refStart 4) := by
+/-- The reference instance under the variant flags `aa` (authorization at any tick) and `ab`
+(abandoning work in flight). -/
+def refV (aa ab : Bool) : RPar := { refP with authAny := aa, abandon := ab }
+
+/-- **The patch routine** survives three crises (21 ticks) and not the fourth, in every variant. -/
+theorem ref_patch_only (aa ab : Bool) :
+    Viab (classSys (refV aa ab) .fixed) 21 0 (refStart 4) ∧
+    ¬ Viab (classSys (refV aa ab) .fixed) 28 0 (refStart 4) := by
   rw [class_ker_iff, class_ker_iff]
-  decide +kernel
+  cases aa <;> cases ab <;> decide +kernel
 
 /-- After three crises the patch routine reaches `regime3`. -/
 theorem ref_trajectory :
     (trajectory refP (fun s => ⟨routine s, false⟩) (refStart 4) 22).getLast? = some regime3 := by
   decide +kernel
 
-theorem regime3_blocked : Blocked refP regime3 := by
-  refine ⟨rfl, rfl, rfl, by decide, fun _ => ⟨by decide, by decide⟩, fun u h => ?_, fun u h => ?_, by decide⟩
+theorem regime3_blocked (aa ab : Bool) : Blocked (refV aa ab) regime3 := by
+  refine ⟨rfl, rfl, rfl, by decide, ⟨by show (7 : Nat) < 8; decide, by show (7 : Nat) < 9; decide⟩,
+    fun u h => ?_, fun u h => ?_, by decide⟩
   · simp [regime3] at h
   · simp [regime3] at h
 
-/-- **Severity 3 after three successful escapes.** `regime3` is outside `𝒦_adapt` (hence outside
-`𝒦_policy` and `𝒦_fixed`) for the rest of the crisis, and inside `𝒦_phys` at every horizon. -/
-theorem ref_lockin :
-    (∀ n t, 7 ≤ n → ¬ Viab (classSys refP .adapt) n t regime3) ∧
-    (∀ n t, 7 ≤ n → ¬ Viab (classSys refP .policy) n t regime3) ∧
-    (∀ n t, 7 ≤ n → ¬ Viab (classSys refP .fixed) n t regime3) ∧
-    (∀ n t, Viab (classSys refP .phys) n t regime3) := by
-  have hA : ∀ n t, 7 ≤ n → ¬ Viab (classSys refP .adapt) n t regime3 :=
-    fun n t hn => blocked_not_viable refP (Or.inl rfl) n t regime3 regime3_blocked hn
+/-- **Severity 3 after three successful escapes, in every variant.** `regime3` is outside `𝒦_adapt`
+(hence outside `𝒦_policy` and `𝒦_fixed`) for the rest of the crisis, and inside `𝒦_phys` at every
+horizon. -/
+theorem ref_lockin (aa ab : Bool) :
+    (∀ n t, 7 ≤ n → ¬ Viab (classSys (refV aa ab) .adapt) n t regime3) ∧
+    (∀ n t, 7 ≤ n → ¬ Viab (classSys (refV aa ab) .policy) n t regime3) ∧
+    (∀ n t, 7 ≤ n → ¬ Viab (classSys (refV aa ab) .fixed) n t regime3) ∧
+    (∀ n t, Viab (classSys (refV aa ab) .phys) n t regime3) := by
+  have hA : ∀ n t, 7 ≤ n → ¬ Viab (classSys (refV aa ab) .adapt) n t regime3 :=
+    fun n t hn => blocked_not_viable (refV aa ab) (Or.inl rfl) n t regime3 (regime3_blocked aa ab) hn
   refine ⟨hA, fun n t hn h => hA n t hn ?_, fun n t hn h => hA n t hn ?_, ?_⟩
-  · have := class_nesting refP (k := .policy) (k' := .adapt) (by decide) (n + t) t regime3
+  · have := class_nesting (refV aa ab) (k := .policy) (k' := .adapt) (by decide) (n + t) t regime3
     simp only [K, Nat.add_sub_cancel] at this
     exact this h
-  · have := class_nesting refP (k := .fixed) (k' := .adapt) (by decide) (n + t) t regime3
+  · have := class_nesting (refV aa ab) (k := .fixed) (k' := .adapt) (by decide) (n + t) t regime3
     simp only [K, Nat.add_sub_cancel] at this
     exact this h
   · intro n t
-    exact seed_sustainable refP .phys (by decide) (phys_seed_adm refP rfl) n t regime3
+    exact seed_sustainable (refV aa ab) .phys (by decide) (phys_seed_adm (refV aa ab) rfl) n t regime3
       ⟨rfl, Or.inr ⟨rfl, rfl⟩, Or.inr rfl⟩
 
-/-- **Severity 4 without a seed.** With no seed present, `regime3` is outside `𝒦_phys` as well. -/
-theorem ref_no_seed :
-    ∀ n t, 7 ≤ n → ¬ Viab (classSys { refP with seed := false } .phys) n t regime3 :=
-  fun n t hn => blocked_not_viable _ (Or.inr ⟨rfl, rfl⟩) n t regime3 regime3_blocked hn
+/-- **Severity 4 without a seed, in every variant.** -/
+theorem ref_no_seed (aa ab : Bool) :
+    ∀ n t, 7 ≤ n → ¬ Viab (classSys { refV aa ab with seed := false } .phys) n t regime3 :=
+  fun n t hn => blocked_not_viable _ (Or.inr ⟨rfl, rfl⟩) n t regime3 (regime3_blocked aa ab) hn
 
-/-- **Early pruning is sustainable.** Patching twice and pruning at depth 2 is viable at every
-horizon from depth 0 with no reserves: its trajectory enters a closed orbit. -/
-theorem ref_prune_sustainable : ∀ n t, Viab (classSys refP .adapt) n t (refStart 0) := by
+/-- **Early pruning is sustainable, in every variant.** Patching twice and pruning at depth 2 is
+viable at every horizon from depth 0 with no reserves: its trajectory enters a closed orbit (checked
+with both flags off; the flags only add actions, `variant_mono`). -/
+theorem ref_prune_sustainable (aa ab : Bool) : ∀ n t, Viab (classSys (refV aa ab) .adapt) n t (refStart 0) := by
   have h := orbitOK_sound refP .adapt (pruneRule 2) (trajectory refP (pruneRule 2) (refStart 0) 85)
     (by decide +kernel)
-  exact fun n t => h n t (refStart 0) (by decide +kernel)
+  intro n t
+  have := variant_mono refP .adapt aa ab (n + t) t (refStart 0)
+  simp only [K, Nat.add_sub_cancel] at this
+  exact this (h n t (refStart 0) (by decide +kernel))
 
 /-! ## The exact sweep (computational)
 
@@ -622,6 +653,12 @@ def seedRule (p : RPar) (s : RSt) : Act :=
   else if inFlight s.work then ⟨.cont, false⟩
   else if s.auth then ⟨.seed, false⟩
   else if p.seed && !s.pend && decide (AUTH_COST ≤ s.r) then ⟨.patch, true⟩ else ⟨.patch, false⟩
+
+/-- The same rule, patching instead when pruning is unaffordable. -/
+def pruneRuleAff (q : Nat) (s : RSt) : Act :=
+  if s.done then ⟨.wait, false⟩
+  else if inFlight s.work then ⟨.cont, false⟩
+  else if q ≤ s.n ∧ PRUNE_COST ≤ s.r then ⟨.prune, false⟩ else ⟨.patch, false⟩
 
 def bound (D l0 delta : Nat) : Nat := if l0 ≤ D then (D - l0) / delta + 1 else 0
 

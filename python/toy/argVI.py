@@ -23,7 +23,7 @@ H = 12   # horizon in crises
 # (authorized; in the physical class, present), and may propose authorizing it (ALPHA extra ticks this
 # cycle, effective next cycle). Governance: none (no seed), unilateral, unanimous (partners vote yes).
 # Control classes (I.3.3), per agent: agent 1 adapt; a partner adapt (C, chosen with agent 1) or fixed
-# (N, its incumbent routine, votes yes). An adversary (A) is a disturbance (I.3.8) over the
+# (N, its incumbent routine, votes yes, or no in the vote variant). An adversary (A) is a disturbance (I.3.8) over the
 # disturbance set W: any segment action and vote, except withholding unless overt. The kernel is the
 # robust kernel: exists (agent 1, adapt partners) for all disturbances, escape and stay in the kernel
 # for one cycle fewer. The physical class frees routines (N -> C) and admits the seed unauthorized.
@@ -45,9 +45,9 @@ def phys_prof(pr):
 
 
 class Shared:
-    def __init__(self, D, l0, delta, lam, gov, routine="patch", phys=False, overt=False):
+    def __init__(self, D, l0, delta, lam, gov, routine="patch", phys=False, overt=False, vote=True):
         self.D, self.l0, self.delta, self.lam, self.gov = D, l0, delta, lam, gov
-        self.routine, self.phys, self.overt = routine, phys, overt
+        self.routine, self.phys, self.overt, self.vote = routine, phys, overt, vote
 
     def seg_time(self, sg, n): return self.delta * n if sg == PATCH else 1 + self.lam * n
     def seed_avail(self, x): return self.gov != "none" and (x[3] or self.phys)
@@ -71,7 +71,7 @@ class Shared:
         nx = lambda sg, n: n + 1 if sg == PATCH else 0
         return (nx(m1[1], x[0]), nx(m2[0], x[1]), nx(m3[0], x[2]), a) if d <= self.D else None
 
-    def rout(self, n): return (PRUNE if self.routine == "prune2" and n >= 2 else PATCH, True)
+    def rout(self, n): return (PRUNE if self.routine == "prune2" and n >= 2 else PATCH, self.vote)
 
     def pmoves(self, x, m1):
         """Partner actions that can change the outcome of m1 (restoring the segment)."""
@@ -168,7 +168,7 @@ def horizon(lay):
 
 def multi_lines():
     yield "Argument VI, Part II: the joint system of three agents on a shared recovery chain"
-    yield (f"  agent 1 in the adapt class; partners 2 and 3 each adapt (C), fixed (N: incumbent routine, votes yes) "
+    yield (f"  agent 1 in the adapt class; partners 2 and 3 each adapt (C), fixed (N: incumbent routine, votes yes unless stated) "
            f"or adversarial (A: a disturbance, I.3.8, covert unless stated); authorization costs {ALPHA} ticks of the "
            f"current crisis and takes effect next cycle; horizon {H} cycles")
     yield ("REFERENCE D=7, l0=2, delta=2, prune time 1+2n per segment, neutral routine patch; "
@@ -182,6 +182,9 @@ def multi_lines():
            + row(Shared(7, 2, 2, 2, "none").phys_horizons()))
     yield ("GOV unanimous, physical class (routines freed; seed admissible unauthorized): "
            + row(Shared(7, 2, 2, 2, "unanimous").phys_horizons()))
+    m = Shared(7, 2, 2, 2, "unanimous", vote=False)
+    st = m.reachable()
+    yield "GOV unanimous, neutral routines vote no: " + row([horizon(m.layers(pr, st)) for pr in PROFILES])
     m = Shared(7, 2, 2, 2, "unilateral")
     st = m.reachable()
     lay = m.layers("NA", st)
@@ -197,7 +200,7 @@ def multi_lines():
     hz = {}
     checks = viol = 0
     pairs = [("CN", "CC"), ("CA", "CN"), ("NN", "CN"), ("NA", "NN"), ("NA", "CA"), ("AA", "NA")]
-    phys_unan, phys_none, overt, myo = {}, {}, {}, {}
+    phys_unan, phys_none, overt, myo, unan_no = {}, {}, {}, {}, {}
     for c in base:
         D, l0, d, lamk = c
         for gov in GOVS:
@@ -219,6 +222,11 @@ def multi_lines():
             st = mo.reachable()
             for pr in ("CA", "NA", "AA"):
                 overt[c, gov, pr] = horizon(mo.layers(pr, st))
+        for routine in ("patch", "prune2"):
+            mv = Shared(D, l0, d, lamk * d, "unanimous", routine, vote=False)
+            st = mv.reachable()
+            for pr in PROFILES:
+                unan_no[c, routine, pr] = horizon(mv.layers(pr, st))
         myo[c] = Shared(D, l0, d, lamk * d, "unilateral").myopic("NA", H)
     yield (f"NESTING kernel inclusions adversary <= fixed <= adapt (6 substitutions, every reachable state, "
            f"horizons 0..{H}): {checks} checks, {viol} violations")
@@ -257,6 +265,13 @@ def multi_lines():
            f"early-authorization condition l0+alpha+2 <= D holds in {len(early)}, of which surviving "
            f"{sum(h(c, 'NA', 'unilateral') == H for c in early)}; one-cycle lookahead survives all {H} in "
            f"{sum(myo[c] == H for c in base)}")
+    for routine in ("patch", "prune2"):
+        yield (f"VOTE neutral routines vote no, gov=unanimous routine={routine}: " + ", ".join(
+            f"C{pr} {sum(unan_no[c, routine, pr] == H for c in base)}" for pr in PROFILES)
+            + f" (configurations surviving all {H} crises, of {len(base)})")
+    yield (f"VOTE neutral routines vote no, routine patch: CNN survives all {H} crises in "
+           f"{sum(unan_no[c, 'patch', 'NN'] == H for c in base)}, CNA in {sum(unan_no[c, 'patch', 'NA'] == H for c in base)}; "
+           f"CNN survival equals its no-seed survival in {sum(unan_no[c, 'patch', 'NN'] == h(c, 'NN') for c in base)}")
     ov = "; ".join(f"{gov} " + ", ".join(f"C{pr} {sum(overt[c, gov, pr] == H for c in base)}" for pr in ("CA", "NA", "AA"))
                    for gov in GOVS)
     first_cycle = sum(any(overt[c, gov, pr] > 0 for gov in GOVS for pr in ("CA", "NA", "AA")) for c in base)

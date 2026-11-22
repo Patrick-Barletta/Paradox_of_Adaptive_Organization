@@ -87,10 +87,15 @@ def C_CONC : Nat := 1
 def OUT_FIX : Nat := 4
 def OUT_CONC : Nat := 3
 
-/-- The forced-switch schedule: every `P` operating ticks, plus an optional unscheduled switch. -/
+/-- The forced-switch schedule (every `P` operating ticks, plus an optional unscheduled switch), and
+two modeling choices that A0–A3 do not settle, reported as variants: `cancel` (a forced switch
+cancels a realignment in flight) and `seize` (an uncleared obligation means seizure of reserves;
+otherwise operations are suspended, with upkeep, until it is cleared). -/
 structure APar where
   P : Nat
   extra : Option Nat
+  cancel : Bool
+  seize : Bool
   deriving DecidableEq, Repr
 
 /-- The state `(x, O, π, q)`: `up r` are `x`, `scar` is `O`, `aligned` is `π`, `impl oblig` are
@@ -126,11 +131,18 @@ def downA (s : ASt) : ASt := { s with up := false }
 def stepA (q : APar) (t : Nat) (s : ASt) (a : AAct) : ASt :=
   if !s.up then s
   else if s.oblig then
+    -- the decision step (t = 0) has no upkeep; later steps with the obligation pending do
+    let need := if t == 0 then 0 else U
+    let sw := switchAt q t
     match a.dec with
-    | .none => downA s
-    | .clean => ⟨true, min RMAX (s.r - C_FIX), false, true, false, false⟩
-    | .conc => ⟨true, min RMAX (s.r - C_CONC), true, true, false, false⟩
-    | .free => ⟨true, min RMAX s.r, false, true, false, false⟩
+    | .none =>
+      if q.seize || s.r < need then downA s else ⟨true, min RMAX (s.r - need), false, true, false, true⟩
+    | .clean =>
+      if s.r < need + C_FIX then downA s else ⟨true, min RMAX (s.r - need - C_FIX), false, !sw, false, false⟩
+    | .conc =>
+      if s.r < need + C_CONC then downA s else ⟨true, min RMAX (s.r - need - C_CONC), true, !sw, false, false⟩
+    | .free =>
+      if s.r < need then downA s else ⟨true, min RMAX (s.r - need), false, !sw, false, false⟩
   else
     let al1 := s.aligned || s.impl
     let im1 := false
@@ -140,7 +152,7 @@ def stepA (q : APar) (t : Nat) (s : ASt) (a : AAct) : ASt :=
     let out := if al2 && !sw then (if !s.scar || a.free then OUT_FIX else OUT_CONC) else 0
     let cost := if a.later then C_FIX else 0
     if s.r + out < U + cost then downA s
-    else ⟨true, min RMAX (s.r + out - U - cost), s.scar && !a.later, al2 && !sw, im2 && !sw, false⟩
+    else ⟨true, min RMAX (s.r + out - U - cost), s.scar && !a.later, al2 && !sw, im2 && !(sw && q.cancel), false⟩
 
 /-- **Admissible actions of each class** (I.3.3). -/
 def admA (k : Cls) (s : ASt) (a : AAct) : Bool :=
@@ -225,13 +237,14 @@ def physRule : ASt → AAct := fun _ => ⟨.none, true, false, true⟩
 viable through `T` operating ticks means `Viab … T 1`). At `T = 9` the concession needs the policy
 class (severity 1); at `T = 10` no organizational class saves it while the physical class does
 (severity 3). -/
-theorem ref_shift :
-    ¬ Viab (aSys ⟨4, none⟩ .fixed) 9 1 (postConc 1) ∧ Viab (aSys ⟨4, none⟩ .policy) 9 1 (postConc 1) ∧
-    ¬ Viab (aSys ⟨4, none⟩ .adapt) 10 1 (postConc 1) ∧ Viab (aSys ⟨4, none⟩ .phys) 10 1 (postConc 1) := by
-  refine ⟨?_, ?_, ?_, rule_viabA _ _ physRule 10 1 _ (by decide +kernel)⟩
-  · rw [aSys_iff]; decide +kernel
-  · rw [aSys_iff]; decide +kernel
-  · rw [aSys_iff]; decide +kernel
+theorem ref_shift (ca se : Bool) :
+    ¬ Viab (aSys ⟨4, none, ca, se⟩ .fixed) 9 1 (postConc 1) ∧
+    Viab (aSys ⟨4, none, ca, se⟩ .policy) 9 1 (postConc 1) ∧
+    ¬ Viab (aSys ⟨4, none, ca, se⟩ .adapt) 10 1 (postConc 1) ∧
+    Viab (aSys ⟨4, none, ca, se⟩ .phys) 10 1 (postConc 1) := by
+  cases ca <;> cases se <;>
+  exact ⟨by rw [aSys_iff]; decide +kernel, by rw [aSys_iff]; decide +kernel,
+    by rw [aSys_iff]; decide +kernel, rule_viabA _ _ physRule 10 1 _ (by decide +kernel)⟩
 
 /-! ## Sweep B -/
 
@@ -406,24 +419,24 @@ def classes : List Cls := [.fixed, .policy, .adapt, .phys]
 
 def sev (ks : List Bool) : Nat := ((List.range 4).find? fun i => ks[i]!).getD 4
 
-def concOk (r₀ P T : Nat) (extra : Option Nat := none) : Bool :=
-  decide (C_CONC ≤ r₀) && kernelA ⟨P, extra⟩ .policy T 1 (postConc r₀)
-def cleanOk (r₀ P T : Nat) (extra : Option Nat := none) : Bool :=
-  decide (C_FIX ≤ r₀) && kernelA ⟨P, extra⟩ .policy T 1 (postClean r₀)
+def concOk (ca se : Bool) (r₀ P T : Nat) (extra : Option Nat := none) : Bool :=
+  decide (C_CONC ≤ r₀) && kernelA ⟨P, extra, ca, se⟩ .policy T 1 (postConc r₀)
+def cleanOk (ca se : Bool) (r₀ P T : Nat) (extra : Option Nat := none) : Bool :=
+  decide (C_FIX ≤ r₀) && kernelA ⟨P, extra, ca, se⟩ .policy T 1 (postClean r₀)
 
 def r0s : List Nat := (List.range 10).map (· + 1)
 def ps : List Nat := [3, 4, 5, 6, 7, 8]
 def ts : List Nat := (List.range 21).map (· + 4)
 
-def crossover (r₀ P : Nat) : String :=
-  let ok := ts.filter fun T => concOk r₀ P T
+def crossover (ca se : Bool) (r₀ P : Nat) : String :=
+  let ok := ts.filter fun T => concOk ca se r₀ P T
   match ok.getLast? with
   | none => "none"
   | some x => if x == 24 then "all" else toString x
 
-def scarWindow (r₀ P : Nat) : Option (List Nat) :=
-  if concOk r₀ P 24 && cleanOk r₀ P 24 then
-    some ((List.range 24).filter fun e => !concOk r₀ P 24 (some e) && cleanOk r₀ P 24 (some e))
+def scarWindow (ca se : Bool) (r₀ P : Nat) : Option (List Nat) :=
+  if concOk ca se r₀ P 24 && cleanOk ca se r₀ P 24 then
+    some ((List.range 24).filter fun e => !concOk ca se r₀ P 24 (some e) && cleanOk ca se r₀ P 24 (some e))
   else none
 
 def encB (t : Nat) (s : BSt) : Nat := ((t * 256 + s.r) * 8 + s.floor) * 16 + s.calm

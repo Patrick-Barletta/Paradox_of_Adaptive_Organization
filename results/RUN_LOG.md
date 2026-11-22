@@ -1,17 +1,25 @@
 # Build and verification log
 
-## Arguments V and VI in the four control classes; Argument VI Part II, 22 November 2026
+## Arguments V and VI in the four control classes, with modeling variants; Argument VI Part II, 22 November 2026
 
 Windows, Lean 4.15.0. Argument V's sweeps and Argument VI's model were rebuilt as control systems on explicit $`(x,O,\pi,q)`$ states, with the four classes of I.3.3 as lists of admissible actions (`Paradox/ConcessionModel.lean`, `Paradox/RatchetModel.lean`). Argument VI Part II (three agents on a shared chain) was added on the same machinery, with adversaries as I.3.8 disturbances (`Paradox/SharedRatchet.lean`, `Paradox/SharedRatchetModel.lean`, `argVI multi`). `Theory.lean`, `Concession.lean` and `Ratchet.lean` are unchanged.
 
+Modeling choices that A0–A3 do not settle are reported as variants, and every result is either computed in all of them or stated with the choice it depends on:
+
+- **Argument V, Sweep A:** whether a forced switch cancels a realignment in flight; seizure vs suspended operations for an uncleared obligation.
+- **Argument VI:** authorization at a crisis's first tick vs any tick; whether work in flight can be abandoned.
+- **Part II:** whether neutral routines vote yes or no; covert vs overt adversaries.
+
+Agreement with the earlier stylized models is not used as validation.
+
 | Verification | Result |
 |---|---|
-| Axioms | Every theorem in `ConcessionModel.lean` (14), `RatchetModel.lean` (23) and `SharedRatchet.lean` (54) uses at most `propext`, `Classical.choice` and `Quot.sound`. No `sorry`, no `native_decide`; concrete reference facts use `decide +kernel`. |
-| No regression | `.\run_all.ps1` rebuilt everything. The 11 other committed outputs are byte-identical (SHA-256); `argV_output.txt` and `argVI_output.txt` changed by design. |
-| Argument V | `argV_output.txt` (153 lines). The policy kernel reproduces the earlier crossover table and regime counts exactly; the scar windows change, because a forced switch now cancels a realignment in flight. Nesting: 7,560 + 600 checks, no violation. Post-concession severities 0/1/2/3: 368/630/138/124; Sweep B severities are 0, 1 or 4 only. |
-| Argument VI | `argVI_output.txt` (23 lines, Lean only). Nesting at every state reachable under physical actions: 58,904,490 checks, no violation. Severity at the start 0/1/2/3/4: 18/0/1,537/129/260. Rule survival (18, 1,040, 1,152, 789; adaptive kernel 1,555) and the sensitivity counts equal the earlier model's. The patch routine passes its adaptive point of no return during an earlier crisis than its failing one in 927 configurations. |
-| Argument VI Part II | `argVI_multi_output.txt` (25 lines). Nesting: 20,891,364 checks, no violation. |
-| Python comparisons | `python python/crosscheck_all.py`: exit 0 in 650 s, zero mismatches in all 12 comparisons, including `argV` and the new `argVImulti`. Argument VI's single-organization sweep has no Python mirror. |
+| Axioms | Every theorem in `ConcessionModel.lean` (14), `RatchetModel.lean` (25) and `SharedRatchet.lean` (54) uses at most `propext`, `Classical.choice` and `Quot.sound`. No `sorry`, no `native_decide`; concrete reference facts use `decide +kernel`. The reference theorems of Arguments V and VI (`ref_shift`, `ref_patch_only`, `ref_lockin`, `ref_no_seed`, `ref_prune_sustainable`) hold in every variant; `variant_mono` proves that Argument VI's variant flags only add actions. |
+| No regression | `.un_all.ps1` rebuilt everything. The 11 other committed outputs are byte-identical (SHA-256); `argV_output.txt` and `argVI_output.txt` changed by design, and `argVI_multi_output.txt` is new. |
+| Argument V | `argV_output.txt` (443 lines; Sweep A under all four variants). Nesting: 7,560 checks per variant + 600, no violation. Crossover table, regimes, post-concession severities (0/1/2/3: 368/630/138/124) and the 18-of-24 scar-window count hold in every variant. The scar windows' extent depends on the cancel choice, and decision-state severity 0 (18 cells) appears only with suspended operations. Sweep B severities are 0, 1 or 4 only. |
+| Argument VI | `argVI_output.txt` (70 lines, Lean only, all four variants). Nesting: 58,904,490 checks without abandonment and 98,522,037 with it, no violation. In every variant: severity at the start 0/1/2/3/4 = 18/0/1,537/129/260; the bound is exact (1,926 of 1,926); the patch routine passes its adaptive point of no return while its patches still succeed in 1,537; rule survival 18, 1,040 (1,424 patching when unaffordable), 1,152, 789; the adaptive kernel contains the start in 1,555. Depending on the choices: an earlier crisis than the failing one in 927 (first-tick authorization) vs 410 (any tick); exit severity 3/4 in 529/1,008 (no abandonment) vs 834/703 (abandonment). |
+| Argument VI Part II | `argVI_multi_output.txt` (29 lines). Nesting: 20,891,364 checks, no violation. With neutral routines voting no, unanimity gives CNN exactly its no-seed survival in all 324 configurations. |
+| Python comparisons | `python python/crosscheck_all.py`: exit 0 in 685 s, zero mismatches in all 12 comparisons, including `argV` (443 lines) and `argVImulti` (29 lines). Argument VI's single-organization sweep has no Python mirror. |
 
 ## Argument VI (the escape ratchet), 22 November 2026
 

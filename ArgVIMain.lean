@@ -41,12 +41,14 @@ structure PathRes where
     if pat.getLast? != some sev[i]! then pat := pat ++ [sev[i]!]
   return ⟨sev, tstar, fail, ">".intercalate (pat.map toString)⟩
 
-def refMain : IO Unit := do
+def regimes : IO Unit := do
   let p := refP
   IO.println "REFERENCE D=7, l0=2, delta=2, prune 3+2n ticks, seed present but not authorized, reserves start at 4"
   for n in [0:5] do
     let s : RSt := ⟨true, 4, 7, n, false, false, .none, false⟩
     IO.println s!"REGIME n={n}: patch {patchTotal p n} ticks, {feas (oneCrisis p fixedRule s)}; prune {pruneTotal p n} ticks, {feas (oneCrisis p (pruneRule 0) s)}"
+
+def refMain (p : RPar) : IO Unit := do
   let pr := analysePath p (start p 4)
   let failCrisis := (pr.fail.getD 0 - 1) / p.D
   IO.println s!"REFERENCE the patch routine fails in crisis {failCrisis} (tick {pr.fail.getD 0}); bound floor((D-l0)/delta)+1 = {bound 7 2 2}"
@@ -61,14 +63,14 @@ def refMain : IO Unit := do
   IO.println s!"TRAJECTORY patch routine, severity by tick (one group per crisis): {"|".intercalate groups}"
   IO.println s!"TRAJECTORY points of no return t*: fixed {pr.tstar[0]!}, policy {pr.tstar[1]!}, adapt {pr.tstar[2]!}, phys {pr.tstar[3]!}; first down tick {pr.fail.getD 0}"
   let m0 := memberships p #[(H - 1, start p 4)]
-  IO.println s!"POLICY survival of {H} crises from the start: patch routine {b01 (survives p fixedRule (start p 4))}, prune at depth 1 {b01 (survives p (pruneRule 1) (start p 4))}, prune at depth 2 {b01 (survives p (pruneRule 2) (start p 4))}, authorize the seed early {b01 (survives p (seedRule p) (start p 4))}; kernels at the start: fixed {b01 m0[0]![0]!}, policy {b01 m0[1]![0]!}, adapt {b01 m0[2]![0]!}, phys {b01 m0[3]![0]!}"
+  IO.println s!"POLICY survival of {H} crises from the start: patch routine {b01 (survives p fixedRule (start p 4))}, prune at depth 1 {b01 (survives p (pruneRule 1) (start p 4))}/{b01 (survives p (pruneRuleAff 1) (start p 4))}, prune at depth 2 {b01 (survives p (pruneRule 2) (start p 4))}/{b01 (survives p (pruneRuleAff 2) (start p 4))} (strict/patch when unaffordable), authorize the seed early {b01 (survives p (seedRule p) (start p 4))}; kernels at the start: fixed {b01 m0[0]![0]!}, policy {b01 m0[1]![0]!}, adapt {b01 m0[2]![0]!}, phys {b01 m0[3]![0]!}"
 
 structure CfgRes where
   sev0 : Nat
   path : PathRes
   checks : Nat
   viol : Nat
-  pol : Array Bool        -- prune1, prune2, seed, adapt kernel at the start
+  pol : Array Bool        -- prune1, prune2, seed, adapt kernel, prune1 and prune2 patching when unaffordable
   boundOk : Option Bool   -- patch failure crisis = bound (when the bound is inside the horizon)
   deriving Inhabited
 
@@ -79,8 +81,8 @@ structure CfgRes where
     let b := (List.range 3).foldl (fun acc k => if m[k]![i]! && !m[k + 1]![i]! then acc + 1 else acc) 0
     (c + 3, v + b)) (0, 0))
 
-@[noinline] def evalCfg (D l0 d lam : Nat) (seed : Bool) (R0 : Nat) : CfgRes :=
-  let p : RPar := ⟨D, l0, d, lam, seed⟩
+@[noinline] def evalCfg (aa ab : Bool) (D l0 d lam : Nat) (seed : Bool) (R0 : Nat) : CfgRes :=
+  let p : RPar := ⟨D, l0, d, lam, seed, aa, ab⟩
   let s0 := start p R0
   let m0 := memberships p #[(H - 1, s0)]
   let pr := analysePath p s0
@@ -88,7 +90,8 @@ structure CfgRes where
   let b := bound D l0 d
   let boundOk := if b < H then some (pr.fail.map (fun t => (t - 1) / D) == some b) else none
   ⟨severity m0 0, pr, checks, viol,
-   #[survives p (pruneRule 1) s0, survives p (pruneRule 2) s0, survives p (seedRule p) s0, m0[2]![0]!],
+   #[survives p (pruneRule 1) s0, survives p (pruneRule 2) s0, survives p (seedRule p) s0, m0[2]![0]!,
+     survives p (pruneRuleAff 1) s0, survives p (pruneRuleAff 2) s0],
    boundOk⟩
 
 def bump (l : List (String × Nat)) (k : String) : List (String × Nat) :=
@@ -135,14 +138,14 @@ def bump (l : List (String × Nat)) (k : String) : List (String × Nat) :=
   IO.println s!"PATTERN severities along the patch path while up (repeats removed): {pstr}"
   IO.println s!"TSTAR t*_fixed <= t*_policy <= t*_adapt <= t*_phys in {tOrder} of {n}; t*_policy = t*_fixed in {polEqFixed}"
   let polCount (j : Nat) : Nat := (res.filter fun r => r.pol[j]!).size
-  IO.println s!"SURVIVAL of {H} crises: patch routine {survive}, prune at depth 1 {polCount 0}, prune at depth 2 {polCount 1}, authorize the seed early {polCount 2}, adaptive kernel (full lookahead) {polCount 3} (of {n})"
+  IO.println s!"SURVIVAL of {H} crises: patch routine {survive}, prune at depth 1 {polCount 0} (patching when unaffordable {polCount 4}), prune at depth 2 {polCount 1} (patching when unaffordable {polCount 5}), authorize the seed early {polCount 2}, adaptive kernel (full lookahead) {polCount 3} (of {n})"
   let lamNames := ["0", "delta", "2*delta"]
   let cells := (List.range 3).map fun lk =>
     let idxs := (List.range n).filter fun i => configs[i]!.2.2.2.1 == lk
     s!"lam={lamNames[lk]!} {(idxs.filter fun i => res[i]!.pol[3]!).length}/{idxs.length}"
   IO.println s!"SENSITIVITY adaptive kernel at the start by prune slope: {", ".intercalate cells}"
 
-def sweepMain : IO Unit := do
+def sweepMain (aa ab : Bool) : IO Unit := do
   let mut configs : Array (Nat × Nat × Nat × Nat × Bool × Nat) := #[]
   for D in [4:13] do
     for l0 in [1:5] do
@@ -151,8 +154,7 @@ def sweepMain : IO Unit := do
           for seed in [false, true] do
             for R0 in [0, 2, 4] do
               configs := configs.push (D, l0, d, lamk, seed, R0)
-  IO.println s!"SWEEP D=4..12, l0=1..4, delta=1..3, prune slope lam in (0, delta, 2*delta), seed absent/present, reserves start 0/2/4; {configs.size} configurations, horizon {H} crises"
-  let res := configs.map fun (D, l0, d, lamk, seed, R0) => evalCfg D l0 d (lamk * d) seed R0
+  let res := configs.map fun (D, l0, d, lamk, seed, R0) => evalCfg aa ab D l0 d (lamk * d) seed R0
   report configs res
 
 def main (args : List String) : IO Unit := do
@@ -161,5 +163,10 @@ def main (args : List String) : IO Unit := do
     return
   IO.println "Argument VI: the escape ratchet, four control classes on the tick-level state (x, O, q)"
   IO.println s!"  x = (up, reserves <= {CAP}, ticks to the deadline); O = (chain depth, seed authorized); q = (escape done, transition in flight, authorization pending); income {INCOME} per crisis; prune costs {PRUNE_COST}, authorizing {AUTH_COST} (effective at the next crisis); horizon {H} crises"
-  refMain
-  sweepMain
+  regimes
+  IO.println s!"SWEEP D=4..12, l0=1..4, delta=1..3, prune slope lam in (0, delta, 2*delta), seed absent/present, reserves start 0/2/4; 1944 configurations, horizon {H} crises"
+  IO.println "VARIANTS two modeling choices A0-A3 do not settle; every result is reported under all four combinations"
+  for (aa, ab) in [(false, false), (true, false), (false, true), (true, true)] do
+    IO.println s!"VARIANT authorization {if aa then "at any tick" else "at a crisis's first tick"}; work in flight {if ab then "may be abandoned" else "cannot be abandoned"}"
+    refMain { refP with authAny := aa, abandon := ab }
+    sweepMain aa ab
