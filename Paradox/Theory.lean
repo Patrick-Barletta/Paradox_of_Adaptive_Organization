@@ -13,6 +13,9 @@ Everything here is proved in full, with no `sorry` and no `native_decide`.
 * `greedy_suffices`  — kernels can be computed by simulating a dominant rule (used for climate)
 * `robust_strengthened` — Proposition 3′ (robust version with the strengthened premise)
 * `robust_monotone_loss_fails` — Proposition 3 does NOT hold for robust kernels (explicit counterexample)
+* `cap_not_nested`, `cap_kernel_shrinks`, `rate_upward_needs_nesting` — with capability-indexed
+  reactions the nesting hypothesis of Proposition II.1 fails and a higher ceiling can shrink the
+  kernel (explicit counterexample)
 -/
 
 namespace Paradox.Theory
@@ -220,5 +223,69 @@ theorem robust_monotone_loss_fails :
   intro n
   exact ⟨0, 1, (), by show (0 : Nat) ≠ 2; decide, trivial, Or.inl ⟨rfl, Or.inl rfl⟩,
     ex_safe n, ex_start_not_robust n⟩
+
+/-! ## Capability-indexed reactions: the nesting hypothesis cannot be dropped
+
+`rate_upward` and `delay_never_lowers_required_rate` assume `hnest`: every transition available
+under a lower ceiling is also available under a higher one. That holds when reactions depend on the
+actions taken. It fails when they depend on the capabilities held: holding a higher ceiling changes
+the outcome of a move the system could already make (antitrust triggered by capacity, a security
+dilemma). Here, from state 0 the same move reaches the safe state 1 under ceiling 0, but under any
+higher ceiling the reaction sends it to the non-viable state 2. -/
+
+/-- Ceiling `r`; from state 0 the one move lands in 1 when `r = 0` and in 2 otherwise. States 1 and
+2 are absorbing. -/
+def capStep (r : Nat) (_t : Nat) (s s' : Nat) : Prop :=
+  (s = 0 ∧ s' = (if r = 0 then 1 else 2)) ∨ (s = 1 ∧ s' = 1) ∨ (s = 2 ∧ s' = 2)
+
+def capV (s : Nat) : Prop := s ≠ 2
+
+abbrev capSys (r : Nat) : Sys Nat := ⟨capStep r, capV⟩
+
+theorem cap_low_safe : ∀ n t, Viab (capSys 0) n t 1 := by
+  intro n
+  induction n with
+  | zero => intro t; show (1 : Nat) ≠ 2; decide
+  | succ n ih =>
+    intro t
+    exact ⟨show (1 : Nat) ≠ 2 by decide, 1, Or.inr (Or.inl ⟨rfl, rfl⟩), ih (t + 1)⟩
+
+theorem cap_low_start : ∀ n t, Viab (capSys 0) n t 0 := by
+  intro n t
+  cases n with
+  | zero => show (0 : Nat) ≠ 2; decide
+  | succ n => exact ⟨show (0 : Nat) ≠ 2 by decide, 1, Or.inl ⟨rfl, rfl⟩, cap_low_safe n (t + 1)⟩
+
+theorem cap_high_start : ∀ n t, ¬ Viab (capSys 1) (n + 1) t 0 := by
+  intro n t h
+  obtain ⟨_, s', hs, hv⟩ := h
+  have e : s' = 2 := by simp [capStep] at hs; omega
+  subst e
+  cases n with
+  | zero => exact (hv : (2 : Nat) ≠ 2) rfl
+  | succ m => exact (hv.1 : (2 : Nat) ≠ 2) rfl
+
+/-- The higher ceiling does not contain the lower ceiling's transitions: `hnest` fails. -/
+theorem cap_not_nested : ¬ ∀ t s s', capStep 0 t s s' → capStep 1 t s s' := by
+  intro h
+  have h1 := h 0 0 1 (Or.inl ⟨rfl, rfl⟩)
+  simp [capStep] at h1
+
+/-- **Capability-indexed reactions can shrink the kernel.** For every horizon, state 0 is in the
+kernel under ceiling 0 and outside it under ceiling 1. -/
+theorem cap_kernel_shrinks (T t : Nat) (hT : t < T) :
+    K (capSys 0) T t 0 ∧ ¬ K (capSys 1) T t 0 := by
+  unfold K
+  obtain ⟨n, hn⟩ : ∃ n, T - t = n + 1 := ⟨T - t - 1, by omega⟩
+  rw [hn]
+  exact ⟨cap_low_start (n + 1) t, cap_high_start n t⟩
+
+/-- Without `hnest`, the conclusion of `rate_upward` is false: a rate that suffices need not keep
+sufficing at a higher ceiling. -/
+theorem rate_upward_needs_nesting :
+    ¬ ∀ r r' : Nat, r ≤ r' → ∀ T t s, K (capSys r) T t s → K (capSys r') T t s := by
+  intro h
+  exact (cap_kernel_shrinks 1 0 (by omega)).2
+    (h 0 1 (by omega) 1 0 0 (cap_kernel_shrinks 1 0 (by omega)).1)
 
 end Paradox.Theory

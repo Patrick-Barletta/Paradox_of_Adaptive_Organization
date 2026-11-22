@@ -186,6 +186,8 @@ where $`b(s)`$ is the state after one year of incumbent operation.
 
 The proof is machine-checked: `Theory.delay_never_lowers_required_rate` and `Theory.rate_upward` in the Lean project.
 
+**The nesting assumption is substantive.** It holds when the environment reacts to the actions a system takes. It can fail when the environment reacts to the ceiling a system holds, whether or not it uses it: antitrust scrutiny triggered by capacity, or a rival arming in response to capability. Then a move available under ceiling $`r`$ can have a different outcome under $`r'\gt r`$, so $`\mathcal U_r\not\subseteq\mathcal U_{r'}`$. A higher ceiling can then shrink the kernel, and Proposition II.1 holds only within a range of ceilings where nesting holds. Lean gives a three-state counterexample (`Theory.cap_not_nested`, `Theory.cap_kernel_shrinks`, `Theory.rate_upward_needs_nesting`). In the climate model, the ceiling only limits which growth rates may be chosen. The dynamics depend on the rate actually used, never on the ceiling, so nesting holds.
+
 **Corollary II.1.** Along the incumbent trajectory, for $`t\lt t_{\mathrm{fail}}`$:
 
 - $`\max\bigl(r_0,\ r_{\mathrm{req}}(s_t,t)\bigr)`$ is nondecreasing in $`t`$. Equivalently, once $`r_{\mathrm{req}}`$ exceeds $`r_0`$, it never falls.

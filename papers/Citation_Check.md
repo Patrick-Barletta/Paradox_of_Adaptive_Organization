@@ -8,6 +8,8 @@ Result: no fabricated or mis-identified source. Every DOI, author list, venue, v
 
 ## 1. Fix before submission
 
+*Status 2026-11-22: all three applied. Fix 3 also drops the unverified "(Section 3.1)" locator; Theorem III.1's positive-goal requirement is now justified by a complement-proposition compilation instead.*
+
 | # | Where | Problem | Suggested fix |
 |---|---|---|---|
 | 1 | Prior_Art_and_Positioning.md, "What the synthesis adds" (Strnad et al. 2019, Fig. 5) | Overstates causality. The paper says the carbon tax cannot be used at once without violating the **social-foundation boundary**, so it is switched on later and switched off once renewables have passed most of their learning curve, while renewables are subsidised most of the time. It does not say that the early subsidies are what make the later tax safe. "Welfare floor" is also not the paper's term. | "In Figure 5 the agent subsidises renewables for most of the run; a carbon tax cannot be introduced immediately without breaching the social-foundation boundary and is switched on only later." |
