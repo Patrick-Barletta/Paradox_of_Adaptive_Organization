@@ -1,5 +1,5 @@
 name = "paradox"
-defaultTargets = ["Paradox", "report", "experimentE", "climate", "argII", "argIII", "friction", "argV"]
+defaultTargets = ["Paradox", "report", "experimentE", "climate", "argII", "argIII", "friction", "argV", "argVI"]
 
 [[lean_lib]]
 name = "Paradox"
@@ -30,3 +30,7 @@ root = "FrictionMain"
 [[lean_exe]]
 name = "argV"
 root = "ArgVMain"
+
+[[lean_exe]]
+name = "argVI"
+root = "ArgVIMain"

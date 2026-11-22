@@ -7,3 +7,5 @@ import Paradox.Escape
 import Paradox.Timed
 import Paradox.Concession
 import Paradox.ConcessionModel
+import Paradox.Ratchet
+import Paradox.RatchetModel

@@ -1,5 +1,16 @@
 # Build and verification log
 
+## Argument VI (the escape ratchet), 22 November 2026
+
+Windows, Lean 4.15.0. Added `Paradox/Ratchet.lean` (theory), `Paradox/RatchetModel.lean` (reference proofs and the exact model), `ArgVIMain.lean` (target `argVI`) and `python/toy/argVI.py`. `Theory.lean` is unchanged.
+
+| Verification | Result |
+|---|---|
+| Axioms | All 27 theorems in `Ratchet.lean` and `RatchetModel.lean` use at most `propext`, `Classical.choice` and `Quot.sound`; `chain_grows`, `esc_done_viable` and `invariant_viable` use none. No `sorry`, no `native_decide`. |
+| No regression | `.\run_all.ps1` rebuilt everything. All 12 committed outputs are byte-identical (SHA-256). |
+| New output | `argVI_output.txt` (30 lines). Reference: bootstrap times 2, 4, 6, 8; first infeasible patch cycle 3, equal to the bound; regime 3 has severity 3 with the seed present and 4 without. Sweep of 1,944 configurations: the bound is exact in all; the patch-only path leaves the adaptive kernel in 1,316 (severity 3 in 658, severity 4 in 658), before the patch failure in 694; survival over 12 cycles is 18 for patch-only and 1,555 for the full-lookahead planner. |
+| Python comparisons | `python python/crosscheck_all.py`: exit 0 in 489 s, zero mismatches in all 12 comparisons, including the new `argVI` check. |
+
 ## Argument V (concessions and erosion), 22 November 2026
 
 Windows, Lean 4.15.0. Added `Paradox/Concession.lean` (theory), `Paradox/ConcessionModel.lean` and `ArgVMain.lean` (target `argV`) and `python/toy/argV.py`.
