@@ -2,6 +2,8 @@
 
 III.A  Restoration independence: bootstrap closure on a capability-dependency graph.
 III.B  The bounds gap: budget-limited witness search vs certificates, on the I.3.10 model.
+III.C  Timed bootstrap: static closure reaches E, but a finite-endurance seed cannot power the
+       serial activation chain (Lean: Paradox/Timed.lean). Run with argument C.
 """
 import itertools, sys
 import kernels as k
@@ -125,12 +127,55 @@ def fmt(names):
     """Lists of names printed as the Lean executable prints them: [a, b]."""
     return "[" + ", ".join(names) + "]"
 
+# ---------------- III.C: timed bootstrap ----------------
+# Rules B -> P -> G -> E, seed B. Serial activation needs TAU powered ticks per capability, and a
+# capability can be worked on only while its prerequisite is online. B is online (and supplies
+# power) only at ticks t < L; afterwards power must come from E.
+PRE = {"P": "B", "G": "P", "E": "G"}
+TAU = {"P": 3, "G": 4, "E": 3}
+
+def timed_successors(L, s):
+    """s = (t, online frozenset of P/G/E, capability under activation or None, progress)."""
+    t, on, work, k = s
+    out = [(t + 1, on, work, k)]                      # wait
+    if t < L or "E" in on:                            # powered
+        up = set(on) | ({"B"} if t < L else set())
+        for c in ("P", "G", "E"):
+            if c not in up and PRE[c] in up:
+                k0 = k if work == c else 0
+                if k0 + 1 >= TAU[c]:
+                    out.append((t + 1, on | {c}, None, 0))
+                else:
+                    out.append((t + 1, on, c, k0 + 1))
+    return out
+
+def earliest_e(L, H):
+    front = {(0, frozenset(), None, 0)}
+    for n in range(H + 1):
+        if any("E" in s[1] for s in front):
+            return n
+        front = {n2 for s in front for n2 in timed_successors(L, s)}
+    return None
+
+def timed_demo():
+    print("III.C rules B->P, P->G, G->E; serial activation P=3, G=4, E=3 powered ticks; "
+          "power from B while t < L, or from E")
+    rules = {c: [[p]] for c, p in PRE.items()}
+    up = closure(rules, ["B"])
+    print(f"III.C static closure of [B]: {fmt([c for c in 'BPGE' if c in up])}")
+    for L in range(13):
+        n = earliest_e(L, 20)
+        print(f"III.C L={L}: " + ("E never online within 20 ticks" if n is None else f"E online at tick {n}"))
+
 if __name__ == "__main__":
-    # Usage: argIII.py [A|B|all]. With no argument both demonstrations run, and the output is
-    # the same, line for line, as the Lean executable's (results/argIII_output.txt).
+    # Usage: argIII.py [A|B|C|all]. With no argument (or all) demonstrations A and B run, and the
+    # output is the same, line for line, as the Lean executable's (results/argIII_output.txt).
+    # C prints demonstration III.C, matching `argIII C` (results/argIII_timed_output.txt).
     which = sys.argv[1] if len(sys.argv) > 1 else "all"
-    if which not in ("A", "B", "all"):
-        sys.exit("usage: argIII.py [A|B|all]")
+    if which not in ("A", "B", "C", "all"):
+        sys.exit("usage: argIII.py [A|B|C|all]")
+    if which == "C":
+        timed_demo()
     if which in ("A", "all"):
         for name, g, seeds in SCENARIOS:
             up = closure(g, seeds)

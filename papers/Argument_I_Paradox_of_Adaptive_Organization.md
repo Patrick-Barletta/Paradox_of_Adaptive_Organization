@@ -68,6 +68,8 @@ Each non-null move $`m`$ has:
 - a resource draw $`c(m)`$ that is charged against $`x`$ while the move is pending,
 - a transitional restriction: while $`m`$ is pending, $`\mathcal A`$ may shrink. Retraining workers takes them off production, for example.
 
+Transitional disruption need not originate inside the organization. The environment, or observers such as counterparties and customers, can react on the tick a move is announced or becomes visible, before it completes. Such reflexive reactions enter through $`m_t`$ in $`f`$ and $`\mathcal A`$ below.
+
 Pending moves are stored in $`q`$. That is how in-flight transitions become commitments.
 
 Dynamics:
@@ -151,6 +153,8 @@ Bertsekas and Rhodes (1971) give a finite-horizon target-tube formulation for di
 ```
 This is part of the assumption, not a consequence of defining $`\phi`$: a total function is not automatically a member of every $`\Pi(O')`$. The fallback must be stated for each simulation, because it decides what the baseline does after a capability is lost.
 - **A3 (physical consistency).** Every organizational step is physically realizable. For all $`(x,O,q,w)`$ and every admissible $`(a,m)`$, there exists $`a'\in\mathcal A_{\mathrm{phys}}(x)`$ with $`f_{\mathrm{phys}}(x,a',w)=f(x,a,q,m,w)`$. Reorganization costs and transitional losses are things physics permits, not exemptions from it.
+
+**What $`\mathcal U_{\mathrm{phys}}`$ relaxes.** The physical class removes organizational constraints on which actions can be chosen and when. It does not change how the environment responds to them. If observers react to a move when it is announced (I.3.1), that reaction is part of the environment's causal response law, and $`f_{\mathrm{phys}}`$ must carry it for the physical action that sends the same signal. A benchmark that drops the reaction makes the environment friendlier as well as the controller freer. Then $`\mathcal K_{\mathrm{phys}}\setminus\mathcal K_{\mathrm{adapt}}`$ mixes organizational lock-in with that difference, as unequal information mixes it with informational lock-in (I.3.8).
 
 **Proposition 1 (nesting).** Under A0–A3 (or A0–A2 with A3′), for every $`t`$:
 ```math
@@ -400,7 +404,7 @@ Organization creates specialization, division of labor, infrastructure dependenc
 Two quantities carry the loop:
 
 - **Reorganization latency.** For a capability $`c`$, let $`\ell(c\mid O,q)`$ be the minimum time to acquire $`c`$ from the current organization through admissible moves. In the exact model, specialization raises the latency of acquiring farming from 2 to 8 worker-ticks.
-- **Substitution breadth.** The set of distinct ways the realizable action set $`\mathcal A(x,O,q)`$ can meet a given requirement. Specialization, sole-source dependencies and lost skills narrow it.
+- **Substitution breadth.** The set of distinct ways the realizable action set $`\mathcal A(x,O,q)`$ can meet a given requirement. Specialization, sole-source dependencies and lost skills narrow it. Breadth is measured relative to a disturbance set $`\mathcal W_{\mathrm{dist}}`$ (I.3.8): it counts the ways of meeting the requirement that survive the disturbances in that set. Distinct activities that share an upstream prerequisite add no breadth against a disturbance that disables that prerequisite, however many of them there are. This is the settlement-scale form of "redundancy is not independence" (Argument III, III.6).
 
 **Organizational margin.** For a state $`s`$ at time $`t`$, let
 ```math

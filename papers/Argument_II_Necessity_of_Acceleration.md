@@ -153,6 +153,8 @@ Take two independent tasks sharing one manufacturing machine: A takes two years 
 
 Cutting $`L`$ from 3 years to 1 moves the 2°C closing year by about 1.4 years per step (E-II.1), because latency binds the schedule for only part of the trajectory.
 
+**Endogenous deadlines.** The climate experiment takes the reference path $`E_{\mathrm{ref}}(t)`$ as exogenous, so its $`t_{\mathrm{fail}}`$ does not depend on how the system is organized. In general it can. Organizational structure $`O_t`$ can bring the failure time forward directly: tightly coupled commitments can make a disturbance propagate faster, and the organization's own moves can provoke a reaction from the environment (Argument I, I.3.1). An organizational change can then shorten the reaction clock $`\tau_{\mathrm{margin}}=t_{\mathrm{fail}}-t`$ itself, not only lengthen $`\tau_{\mathrm{reorganize}}`$. The kernels already include this, because they are computed from the full dynamics. Wherever $`t_{\mathrm{fail}}`$ is used as an input, as in the completion clock and Corollary II.1, it must be the failure time under the organization actually in place.
+
 ## II.4. The necessity condition
 
 **Definition II.3 (rate-bounded classes).** For a ceiling $`r`$, let $`\mathcal U_r`$ be the class of capacity schedules whose growth never exceeds $`r`$ in any year. Schedules may vary over time. $`\mathcal U_r\subseteq\mathcal U_{r'}`$ whenever $`r\le r'`$. Write $`\mathcal K_r(t)`$ for the kernel of $`\mathcal U_r`$.

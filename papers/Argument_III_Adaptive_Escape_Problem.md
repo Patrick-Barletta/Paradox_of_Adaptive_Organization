@@ -164,6 +164,31 @@ Allowing alternative prerequisite sets preserves NP-hardness because all single-
 
 In the conjunctive version of Demonstration III.A, power depends on the first generator only. Both that generator and power are sufficient one-capability seed sets, as direct enumeration confirms. In the version with alternative generators, closure still checks a proposed seed set. The two versions illustrate why the choice of prerequisite rules matters.
 
+**Demonstration III.C (closure is a screen, not a schedule).** Closure has no clock. Take four capabilities with the chain $`B\to P\to G\to E`$ and seed $`\{B\}`$, so $`E\in\mathrm{closure}(\{B\})`$. Now add time:
+
+- activation is serial and takes $`\tau(P)=3`$, $`\tau(G)=4`$ and $`\tau(E)=3`$ powered ticks;
+- a capability can be worked on only while its prerequisite is online;
+- power comes from the seed while it lasts (ticks $`t\lt L`$), or from $`E`$ once it is online.
+
+With $`L=5`$, no admissible trajectory of any length brings $`E`$ online. The work completed never exceeds the number of powered ticks, the chain needs 10, and after $`B`$ expires nothing is powered.
+
+| Seed endurance $`L`$ | $`E\in\mathrm{closure}(\{B\})`$ | Earliest tick with $`E`$ online |
+|---|---|---|
+| 0–9 | yes | never |
+| 10–12 | yes | 10 |
+
+`Paradox/Timed.lean` proves these facts without `sorry` or `native_decide`:
+
+- `timed_bootstrap_static_reachable`: $`E`$ is in the static closure of $`\{B\}`$;
+- `timed_unreachable_of_short_seed`: for every $`L\le 9`$, $`E`$ is unreachable at every horizon; the case $`L=5`$ is `timed_bootstrap_timed_unreachable`;
+- `timed_bootstrap_reachable_long_seed`: the positive control, $`E`$ online at tick 10 when $`L=10`$.
+
+The table is printed by `argIII C` and cross-checked against the Python reference.
+
+Static closure is therefore a necessary structural screen. If a capability lies outside the closure, no timed schedule restores it. Membership is not a guarantee of a feasible activation trajectory. That depends on durations, capacities and how long whatever powers the restoration lasts, which is the timed transition and makespan machinery of Arguments I and II (I.3.1, Definition II.2).
+
+The prerequisite graph must also be visible to whoever acts on it. If the observation $`y_t`$ omits that graph, a stabilizing action can disable an upstream prerequisite without the controller registering the loss. Shedding a load that a prerequisite depends on is one example. This is the information layer of I.3.8: states lost this way lie in $`\mathcal K^{\mathrm{full}}_{\mathrm{adapt}}\setminus\mathcal K^{y}_{\mathrm{adapt}}`$.
+
 **Application.** An infrastructure test would need observed prerequisite alternatives and evidence of which capabilities survive a disruption. ArcWake’s grid-outage engine is a proposed setting for that test. The six-capability calculation illustrates the definitions.
 
 ## III.7. Bounds and the gap
@@ -306,7 +331,8 @@ Together they form a research program: **diagnosis → time constraint → reach
 ## Code and reproducibility
 
 - **`Paradox/Escape.lean`:** STRIPS instances, the escape problem, `escape_wait`, `planning_iff_escape`, and `planning_iff_escape_A0` (Theorem III.1).
-- **`ArgIIIMain.lean`:** Demonstrations III.A and III.B.
+- **`Paradox/Timed.lean`:** the timed-bootstrap counterexample of Demonstration III.C (static closure versus timed reachability).
+- **`ArgIIIMain.lean`:** Demonstrations III.A and III.B; `argIII C` prints III.C (`argIII_timed_output.txt`).
 - **`python/toy/argIII.py`:** the Python reference. Its outputs match Lean's at every overlapping setting.
 
 All Lean results were built and reproduced on the author's machine (`argIII_output.txt`).

@@ -1,5 +1,17 @@
 # Build and verification log
 
+## Timed bootstrap (Demonstration III.C), 22 November 2026
+
+Windows, Lean 4.15.0. Added `Paradox/Timed.lean` and the `argIII C` option.
+
+| Verification | Result |
+|---|---|
+| Build | `.\run_all.ps1`: `lake build` succeeded and every executable ran. |
+| Axioms | `timed_bootstrap_static_reachable`: none. `timed_bootstrap_reachable_long_seed`: `propext`. `timed_bootstrap_timed_unreachable` and `timed_unreachable_of_short_seed`: `propext`, `Classical.choice`, `Quot.sound`. No `sorry`, no `native_decide`. |
+| No regression | All nine previously published outputs (TXT and CSV) were regenerated and are byte-identical (SHA-256) to the committed versions. III.C is printed only by `argIII C`, so `argIII_output.txt` is unchanged. |
+| New output | `argIII_timed_output.txt` (15 lines): E is in the static closure of {B}; E is never online within 20 ticks for seed endurance L = 0–9, and is online at tick 10 for L = 10–12. |
+| Python comparisons | `python python/crosscheck_all.py`: exit 0 in 515 s, with zero mismatches in all nine comparisons, including the new `timed` check against `python/toy/argIII.py C`. |
+
 ## Friction extension, 22 November 2026
 
 `Paradox/Model.lean` and `python/toy/kernels.py` gained two optional frictions, skill decay and a training cost. Both are off by default. With them off, `.\run_all.ps1` regenerated all eight earlier outputs byte for byte (no change in `git diff`), and `Params.step_valid` was reproved for every decay setting and training cost. The new `friction` executable writes `friction_output.txt` (ten friction settings × 6,000 Experiment E settings, about 7 minutes). Its first row reproduces the Experiment E counts. `python python/crosscheck_all.py friction` compares it line by line with the independent Python reference, which maximizes the second lookahead tick over all actions where Lean uses all-forage.

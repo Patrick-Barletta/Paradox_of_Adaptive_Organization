@@ -1,11 +1,15 @@
 import Paradox.Kernel
+import Paradox.Timed
 
 /-! Argument III demonstrations.
 
 III.A  Restoration independence: bootstrap closure on a capability-dependency graph
        (redundancy versus independent recoverability; minimum seed set).
 III.B  The bounds gap on the I.3.10 model: budget-limited witness search against a physical
-       certificate and an organizational relaxation, scored against the exact kernels. -/
+       certificate and an organizational relaxation, scored against the exact kernels.
+III.C  Timed bootstrap (`argIII C`): static closure reaches the target, but a finite-endurance
+       seed cannot power the serial activation chain (Paradox/Timed.lean). Printed only on
+       request, so the default output (results/argIII_output.txt) is unchanged. -/
 
 open Paradox
 
@@ -125,7 +129,17 @@ def gapRun (K : Kernels) (rt : Array (Array Bool)) (budget : Nat) (certRelax : B
         bySig := bySig.set! sg (bySig[sg]! + 1)
   return s!"witness {wit} excluded {exc} unknown {unk} unknown-by-sigma {bySig.toList} wrong {wrong}"
 
-def main : IO Unit := do
+open Paradox.Timed in
+def timedDemo : IO Unit := do
+  IO.println s!"III.C rules B->P, P->G, G->E; serial activation P=3, G=4, E=3 powered ticks; power from B while t < L, or from E"
+  IO.println s!"III.C static closure of [B]: {(closureList [.B]).map Cap.name}"
+  for L in [0:13] do
+    match earliestE L 20 with
+    | some n => IO.println s!"III.C L={L}: E online at tick {n}"
+    | none => IO.println s!"III.C L={L}: E never online within 20 ticks"
+
+def main (args : List String) : IO Unit := do
+  if args == ["C"] then timedDemo; return
   let scen : List (String × Graph × List String) :=
     [("total blackout, no black-start", grid, []),
      ("add a third generator (more redundancy)", addAlts grid [("gen3", [["control", "fuel"]]), ("power", [["gen3"]])], []),

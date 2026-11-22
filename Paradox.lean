@@ -4,3 +4,4 @@ import Paradox.Kernel
 import Paradox.Certified
 import Paradox.Climate
 import Paradox.Escape
+import Paradox.Timed

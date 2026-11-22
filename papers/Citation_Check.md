@@ -66,6 +66,9 @@ Result: no fabricated or mis-identified source. Every DOI, author list, venue, v
 10. Dowling & Gallier 1984, **§4**.
 11. Brafman & Domshlak 2003, **§3**.
 12. Bylander 1994, **"Section 3.1"** for the positive-precondition construction (Fix 3 avoids needing it).
-13. Alshiekh et al. 2018, *Safe reinforcement learning via shielding* (added to Argument III §III.8 on 2026-11-22). Author list, volume and DOI were entered from memory and have not been checked against the publisher record.
+
+## 5. Added after this check
+
+- **Alshiekh et al. 2018**, *Safe Reinforcement Learning via Shielding* (added to Argument III §III.8 and to `prior_art.bib` on 2026-11-22). **Verified 2026-11-22** against the Crossref record for DOI 10.1609/aaai.v32i1.11797: authors Mohammed Alshiekh, Roderick Bloem, Rüdiger Ehlers, Bettina Könighofer, Scott Niekum and Ufuk Topcu; *Proceedings of the AAAI Conference on Artificial Intelligence* 32(1), 2018; article page https://ojs.aaai.org/index.php/AAAI/article/view/11797. The AAAI page itself blocks automated access, and Crossref gives no page range, so none is cited. Only the general idea (a shield that restricts a learner to actions keeping it in a safe set) is cited; no locator.
 
 Bibliographic metadata for the classic references (Arthur, March, Holling, Karp, Papadimitriou & Tsitsiklis, Henzinger et al., Kelley & Walker, Wright, Wilson & Grubler, Coffrin & Van Hentenryck, Kittel et al., and others) matches the standard records; these were checked against existing records, not fetched one by one. The JSTOR book DOI for *Panarchy* (10.2307/jj.41003716) was not resolved.

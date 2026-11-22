@@ -22,6 +22,9 @@ try {
         cmd /c "`"$bin\$exe.exe`" > ${exe}_output.txt"
         if ($LASTEXITCODE -ne 0) { Write-Error "$exe failed with exit code $LASTEXITCODE"; exit $LASTEXITCODE }
     }
+    # Demonstration III.C (timed bootstrap) is printed only on request and saved separately.
+    cmd /c "`"$bin\argIII.exe`" C > argIII_timed_output.txt"
+    if ($LASTEXITCODE -ne 0) { Write-Error "argIII C failed with exit code $LASTEXITCODE"; exit $LASTEXITCODE }
 } finally {
     Pop-Location
 }

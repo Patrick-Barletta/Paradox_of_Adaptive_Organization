@@ -1,0 +1,15 @@
+III.C rules B->P, P->G, G->E; serial activation P=3, G=4, E=3 powered ticks; power from B while t < L, or from E
+III.C static closure of [B]: [B, P, G, E]
+III.C L=0: E never online within 20 ticks
+III.C L=1: E never online within 20 ticks
+III.C L=2: E never online within 20 ticks
+III.C L=3: E never online within 20 ticks
+III.C L=4: E never online within 20 ticks
+III.C L=5: E never online within 20 ticks
+III.C L=6: E never online within 20 ticks
+III.C L=7: E never online within 20 ticks
+III.C L=8: E never online within 20 ticks
+III.C L=9: E never online within 20 ticks
+III.C L=10: E online at tick 10
+III.C L=11: E online at tick 10
+III.C L=12: E online at tick 10
