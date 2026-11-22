@@ -1,0 +1,5 @@
+# Preprint source
+
+To build, first regenerate the figures from the repository root with `python preprint/figures/make_figures.py` (Python 3 with matplotlib; it reads `results/` and the Python reference in `python/`, checks the plotted values against the saved outputs, and writes the PDFs into `preprint/figures/`). Then compile from `preprint/` with `pdflatex main`, `bibtex main`, `pdflatex main`, `pdflatex main`. For Overleaf or arXiv, upload `main.tex`, `references.bib` and the `figures/` folder with its PDF files; only standard TeX Live packages are used, and no shell escape is needed. `references.bib` is a subset of `papers/prior_art.bib` with entries copied verbatim.
+
+The PDF has not been compiled in the environment where this source was written: no TeX engine was available there. The source was checked with a script for balanced environments and braces, resolvable citations and cross-references, and existing figure files, but a first real compile may still surface layout warnings such as overfull boxes.

@@ -10,6 +10,8 @@ Three linked arguments about how adaptive systems lose, and can sometimes regain
 | II | [**On the Necessity of Acceleration**](papers/Argument_II_Necessity_of_Acceleration.md) ([PDF](papers/Argument_II_Necessity_of_Acceleration.pdf)) | Under a deadline, staying viable can require building capabilities faster. Once the required rate exceeds the incumbent rate, waiting along the incumbent path cannot lower it. |
 | III | [**The Adaptive Escape Problem**](papers/Argument_III_Adaptive_Escape_Problem.md) ([PDF](papers/Argument_III_Adaptive_Escape_Problem.pdf)) | A Lean-checked reduction transfers the binary-horizon planning lower bound to escape. For specific models, feasible paths and proofs of infeasibility distinguish established outcomes from unresolved cases. |
 
+[preprint/](preprint/) holds a single unified preprint of all three arguments (LaTeX source, about 20 pages; see [preprint/README.md](preprint/README.md) to build it).
+
 [Climate_Experiment.md](papers/Climate_Experiment.md) applies Arguments I and II to a calibrated, stylized climate model. Its results are conditional on the model and are not a forecast.
 
 [Prior art and positioning](papers/Prior_Art_and_Positioning.md) maps each argument to its closest published precedents, with theorem and figure locators and suggested wording for an introduction. The [BibTeX bibliography](papers/prior_art.bib) can be imported into a reference manager. The [citation check](papers/Citation_Check.md) records which references and pinpoint locators have been verified against their sources, and which are still to be fixed or checked by hand.
@@ -47,6 +49,7 @@ Paradox.lean      library root
 papers/           the three arguments (Markdown and PDF), the climate experiment write-up,
                   prior art, bibliography, citation check and red-team debrief
 results/          saved output of every executable, plus the build and run log
+preprint/         unified LaTeX preprint (main.tex, references.bib, figures/ and the script that makes them)
 python/           Python reference for the climate model and Argument II
 python/toy/       Python reference for the settlement model (I.3.10) and Argument III
 run_all.ps1       build and regenerate everything in results/ (Windows)
@@ -131,7 +134,7 @@ Across the 6,000 settings, the two-tick stock rule that favors foraging enters l
 `results/friction_output.txt` reruns the decision rules over the same grid with two optional frictions: skill decay (farming is lost after d consecutive ticks with no farmers) and a training cost (c food per trainee-tick). With both off it reproduces the Experiment E counts.
 
 - **Frictionless model:** a viability shield on the forage rule survives all 6,000 settings. It overrides in exactly the 4,940 settings where the unshielded rule locks in, and no override lowers the two-tick objective. Here, lock-in comes from tie-breaking. Almost all of the costless overrides (10,750 of 10,868) occur after wild yield has run out, when foraging produces nothing.
-- **Training cost, c = 1:** every one of the 4,940 overrides now lowers the two-tick objective, while the shield still survives all 6,000. Selection becomes strict. In 523 of those settings the shield blocks specialization itself, because specializing at tick 0 would leave the adapt kernel. The shielded rule holds on average 1.42 less food (stock plus incoming harvest) at the tick the unshielded rule locks in.
+- **Training cost, c = 1:** in every one of the 4,940 settings where the shield overrides, at least one override now lowers the two-tick objective, while the shield still survives all 6,000. Selection becomes strict. In 523 of those settings the shield blocks specialization itself, because specializing at tick 0 would leave the adapt kernel. The shielded rule holds on average 1.42 less food (stock plus incoming harvest) at the tick the unshielded rule locks in.
 - **Skill decay:** it never changes the two-tick rules, which acquire farming only when they need it and then use it every tick. It does close the "acquire farming first, then specialize" strategy: with d = 2 that rule locks in 1,425 settings (3,160 when combined with c = 1).
 
 ## License
