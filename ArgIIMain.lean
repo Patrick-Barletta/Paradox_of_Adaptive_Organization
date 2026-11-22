@@ -26,7 +26,21 @@ def closeWith (p : CP) (b : Array CS) (throttled : Bool) : Int := Id.run do
     if ok then tk := s.t else break
   return tk
 
-def main : IO Unit := do
+/-- E-II.6 (printed by `argII ramp`): does a stopping-rule program acquire an upper rate limit once
+acceleration has convex ramp costs or embodied emissions? Saved separately, so the default output
+(results/argII_output.txt) is unchanged. -/
+def rampDemo : IO Unit := do
+  IO.println "E-II.6 acceleration costs (2.0C central, psi 0.5, phi 2, L 2; ramp premium above 10%/yr capacity growth)"
+  for ccap in [0.3, 1.0, 3.0] do
+    for (alpha, emb) in [(1.0, 0.0), (2.0, 0.0), (3.0, 0.0), (1.0, 0.3), (1.0, 1.0), (1.0, 3.0), (2.0, 1.0)] do
+      let p : CP := { psi := 0.5, phi := 2.0, budget := 1035.0, ccap, alpha, embI := emb }
+      let b := p.baseline
+      for (nm, th) in [("stop when not binding", true), ("never stop", false)] do
+        let w := windowRates p b[0]! th
+        IO.println s!"RAMP ccap={ccap} alpha={alpha} emb={emb} program={nm} rmin={pct w.head?} rmax={pct w.getLast?} count={w.length} close={yr (closeWith p b th)}"
+
+def main (args : List String) : IO Unit := do
+  if args == ["ramp"] then rampDemo; return
   IO.println "E-II.2 dilemma (2.0C central, psi 0.5, phi 2)"
   for ccap in [0.3, 1.0, 3.0] do
     let p : CP := { psi := 0.5, phi := 2.0, budget := 1035.0, ccap }

@@ -420,6 +420,8 @@ The loop can run either way. Shortening the latency of a needed capability can r
 
 The sign depends on the disturbance. The same specialization can raise margin against anticipated disturbances and lower it against others. This is the "robust yet fragile" structure that Carlson and Doyle identified in designed systems (I.6). The framework therefore makes no unconditional claim that specialization is harmful. It measures $`\mu`$ for a specified environment path or disturbance set, and the sign is an output of the measurement.
 
+The sign also depends on which disturbances are modeled, and optimizing over a fixed set cannot correct for the ones left out. Suppose a costly cycle-breaking capability, such as a black-start seed (Argument III, III.6), changes nothing on any modeled disturbance. Then a robust optimizer over a finite disturbance set values it at exactly minus its cost (`robust_seed_value` in `Paradox/Theory.lean`). With any positive cost it never chooses it, however decisive the seed would be against a disturbance outside the set (`robust_never_picks_seed`, `seed_example`). This is one formal route to "robust yet fragile": the organization is optimized against the modeled set and stripped of the capability that would protect it against the rest. Restoration independence therefore has to be imposed as a structural requirement; payoff-based optimization will not supply it.
+
 ## I.5. The paradox
 
 ### I.5.1 Informal statement

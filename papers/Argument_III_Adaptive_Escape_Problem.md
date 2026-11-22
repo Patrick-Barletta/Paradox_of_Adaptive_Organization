@@ -189,6 +189,8 @@ Static closure is therefore a necessary structural screen. If a capability lies 
 
 The prerequisite graph must also be visible to whoever acts on it. If the observation $`y_t`$ omits that graph, a stabilizing action can disable an upstream prerequisite without the controller registering the loss. Shedding a load that a prerequisite depends on is one example. This is the information layer of I.3.8: states lost this way lie in $`\mathcal K^{\mathrm{full}}_{\mathrm{adapt}}\setminus\mathcal K^{y}_{\mathrm{adapt}}`$.
 
+**Robust optimization undervalues seeds.** A seed pays off only under disturbances that defeat restoration without it. If a disturbance leaves survivors that already meet every dependency cycle, restoration is complete without the seed (Theorem III.3), and on that branch the seed is pure cost. Consider a robust optimizer whose finite disturbance set contains only such branches. It values the seed at exactly minus its cost and never buys it (`robust_seed_value` and `robust_never_picks_seed` in `Paradox/Theory.lean`). `seed_example` shows the same optimizer buying the seed once a cycle-breaking disturbance is added to the set. Restoration independence, meaning a surviving seed set that meets every cycle, is therefore a structural constraint to impose, not something payoff optimization over a fixed threat set can be expected to produce (Argument I, I.4.3).
+
 **Application.** An infrastructure test would need observed prerequisite alternatives and evidence of which capabilities survive a disruption. ArcWake’s grid-outage engine is a proposed setting for that test. The six-capability calculation illustrates the definitions.
 
 ## III.7. Bounds and the gap

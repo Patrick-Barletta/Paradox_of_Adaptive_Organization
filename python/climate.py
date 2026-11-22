@@ -46,6 +46,10 @@ class P:
     ai30: float = 0.0       # extra emissions from AI data-centre demand in 2030, Gt/yr (Argument II)
     ai35: float = 0.0       # ... in 2035 (linear ramps from 0 in 2026; flat after 2035)
     require_nz: bool = True # viability also requires net zero by the terminal year
+    # Acceleration-cost ablation (Argument II, E-II.6). The defaults reproduce the published model.
+    alpha: float = 1.0      # ramp-cost exponent: orders above g_knee * D cost ccap * (u / g_knee)**(alpha-1) per unit
+    g_knee: float = 0.10    # capacity growth rate u = x / D above which the ramp premium applies
+    emb_i: float = 0.0      # embodied emissions of capacity spending, GtCO2 per $T
 
 def ai_add(p, t):
     """extra no-new-deployment emissions from AI data-centre demand (t = 0 is 2027)"""
@@ -79,13 +83,21 @@ def f_affordable(p, f, budget_T, Er):
         else: hi = mid
     return lo
 
+def capex(p, D, x):
+    """spending on a capacity order x at capacity D, $T (linear unless alpha != 1)"""
+    if p.alpha == 1.0: return p.ccap * x
+    u = x / D if D > 0 else 0.0
+    if u <= p.g_knee: return p.ccap * x
+    return p.ccap * x * (u / p.g_knee) ** (p.alpha - 1.0)
+
 def step(p, s, x, capped=True, fcap=1.0, phi=None):
     """One year. x: capacity ordered this year. Deploys the maximum allowed by capacity,
     affordability and the optional depth cap fcap. Returns next state or None if unaffordable."""
     t, f, C, D, pipe = s
     Et = eref(p, t) * (1 - f)
     phi = p.phi if phi is None else phi
-    Y = p.Y0 * phi * (1 + p.gdp) ** t - p.ccap * x
+    cx = capex(p, D, x)
+    Y = p.Y0 * phi * (1 + p.gdp) ** t - cx
     if Y < -1e-12: return None
     Er1 = eref(p, t + 1)
     f2 = f_affordable(p, f, Y, Er1)
@@ -93,7 +105,8 @@ def step(p, s, x, capped=True, fcap=1.0, phi=None):
     f2 = max(f, min(f2, fcap, 1.0))
     D2 = D + (pipe[0] if pipe else x)
     pipe2 = (pipe[1:] + (x,)) if pipe else ()
-    return (t + 1, f2, C + Et, D2, pipe2)
+    C2 = C + Et if p.emb_i == 0.0 else C + Et + p.emb_i * cx
+    return (t + 1, f2, C2, D2, pipe2)
 
 def need(p, s, fcap=1.0, phi=None):
     """deployment this year would use if capacity were unlimited (affordability- and depth-limited)"""

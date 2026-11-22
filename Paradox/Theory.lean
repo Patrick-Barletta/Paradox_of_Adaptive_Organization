@@ -16,6 +16,9 @@ Everything here is proved in full, with no `sorry` and no `native_decide`.
 * `cap_not_nested`, `cap_kernel_shrinks`, `rate_upward_needs_nesting` — with capability-indexed
   reactions the nesting hypothesis of Proposition II.1 fails and a higher ceiling can shrink the
   kernel (explicit counterexample)
+* `robust_seed_value`, `robust_never_picks_seed`, `robust_seed_nonpos`, `seed_example` — a robust
+  optimizer over a finite disturbance set gives a costly cycle-breaking seed non-positive value when
+  its payoff lies outside the set (W3)
 -/
 
 namespace Paradox.Theory
@@ -287,5 +290,95 @@ theorem rate_upward_needs_nesting :
   intro h
   exact (cap_kernel_shrinks 1 0 (by omega)).2
     (h 0 1 (by omega) 1 0 0 (cap_kernel_shrinks 1 0 (by omega)).1)
+
+/-! ## Robust optimization undervalues cycle-breaking seeds (W3)
+
+A robust optimizer scores each action by its worst case over a finite, modeled disturbance set
+`w₀ :: W`. A cycle-breaking seed (a black-start unit, Argument III §III.6) costs `c` now. On every
+modeled branch in which the dependency cycles are not all broken it changes nothing else, so its
+payoff there is the alternative's minus `c`. Its benefit lies only on disturbances outside the set.
+The lemmas below show such an optimizer gives the seed value exactly `-c ≤ 0`, so with `c > 0` it
+never selects it, however decisive the seed is on an unmodeled disturbance (`seed_example`). -/
+
+/-- Worst-case payoff of `u` over the nonempty finite list `w₀ :: W`. -/
+def worstCase {Ω : Type} (u : Ω → Int) (w₀ : Ω) (W : List Ω) : Int :=
+  W.foldl (fun m w => min m (u w)) (u w₀)
+
+theorem foldl_min_shift {Ω : Type} (u v : Ω → Int) (c : Int) :
+    ∀ (W : List Ω) (a b : Int), a = b - c → (∀ w ∈ W, u w = v w - c) →
+      W.foldl (fun m w => min m (u w)) a = W.foldl (fun m w => min m (v w)) b - c := by
+  intro W
+  induction W with
+  | nil => intro a b hab _; simpa using hab
+  | cons w W ih =>
+    intro a b hab hW
+    simp only [List.foldl_cons]
+    apply ih
+    · have hw := hW w (List.mem_cons_self w W)
+      simp only [Int.min_def]
+      split <;> split <;> omega
+    · intro w' hw'; exact hW w' (List.mem_cons_of_mem w hw')
+
+theorem foldl_min_mono {Ω : Type} (u v : Ω → Int) :
+    ∀ (W : List Ω) (a b : Int), a ≤ b → (∀ w ∈ W, u w ≤ v w) →
+      W.foldl (fun m w => min m (u w)) a ≤ W.foldl (fun m w => min m (v w)) b := by
+  intro W
+  induction W with
+  | nil => intro a b hab _; simpa using hab
+  | cons w W ih =>
+    intro a b hab hW
+    simp only [List.foldl_cons]
+    apply ih
+    · have hw := hW w (List.mem_cons_self w W)
+      simp only [Int.min_def]
+      split <;> split <;> omega
+    · intro w' hw'; exact hW w' (List.mem_cons_of_mem w hw')
+
+/-- **Seed undervaluation (W3).** If on every modeled disturbance the seed pays the alternative's
+payoff minus its cost `c`, the robust value of choosing the seed is exactly `-c`. -/
+theorem robust_seed_value {Ω A : Type} (u : A → Ω → Int) (w₀ : Ω) (W : List Ω) (seed alt : A)
+    (c : Int) (hpay : ∀ w ∈ w₀ :: W, u seed w = u alt w - c) :
+    worstCase (u seed) w₀ W - worstCase (u alt) w₀ W = -c := by
+  have h := foldl_min_shift (u seed) (u alt) c W (u seed w₀) (u alt w₀)
+    (hpay w₀ (List.mem_cons_self w₀ W)) (fun w hw => hpay w (List.mem_cons_of_mem w₀ hw))
+  unfold worstCase
+  omega
+
+/-- A costly seed (`c > 0`) is never a robust optimum when the alternative is available. -/
+theorem robust_never_picks_seed {Ω A : Type} (u : A → Ω → Int) (w₀ : Ω) (W : List Ω)
+    (seed alt : A) (c : Int) (hc : 0 < c) (hpay : ∀ w ∈ w₀ :: W, u seed w = u alt w - c) :
+    worstCase (u seed) w₀ W < worstCase (u alt) w₀ W := by
+  have := robust_seed_value u w₀ W seed alt c hpay
+  omega
+
+/-- The general form: a seed that pays no more than the alternative on every modeled branch has
+robust value at most the alternative's (non-positive relative value). -/
+theorem robust_seed_nonpos {Ω A : Type} (u : A → Ω → Int) (w₀ : Ω) (W : List Ω) (seed alt : A)
+    (hdom : ∀ w ∈ w₀ :: W, u seed w ≤ u alt w) :
+    worstCase (u seed) w₀ W ≤ worstCase (u alt) w₀ W :=
+  foldl_min_mono (u seed) (u alt) W (u seed w₀) (u alt w₀)
+    (hdom w₀ (List.mem_cons_self w₀ W)) (fun w hw => hdom w (List.mem_cons_of_mem w₀ hw))
+
+/-- Disturbances for the example: a modeled one, and an unmodeled cold-load lock that disables
+every member of the restoration cycle. -/
+inductive Dist | normal | coldLoad
+  deriving DecidableEq
+
+/-- Payoffs (`true` = buy the seed, cost 1). Without the seed, the cold-load lock loses the system
+(payoff `-100`); with it, restoration proceeds. -/
+def seedPay : Bool → Dist → Int
+  | false, .normal => 10
+  | true, .normal => 9
+  | false, .coldLoad => -100
+  | true, .coldLoad => 9
+
+/-- Over the modeled set `{normal}` the robust optimizer strictly prefers no seed; over the set that
+includes the cold-load lock it strictly prefers the seed. The seed's value is invisible to any
+optimizer whose disturbance set omits the disturbance it guards against, so restoration
+independence has to be imposed as a structural constraint, not left to payoff optimization. -/
+theorem seed_example :
+    worstCase (seedPay true) .normal [] < worstCase (seedPay false) .normal [] ∧
+    worstCase (seedPay false) .normal [.coldLoad] < worstCase (seedPay true) .normal [.coldLoad] := by
+  decide
 
 end Paradox.Theory

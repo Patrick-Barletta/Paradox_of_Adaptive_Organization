@@ -13,7 +13,7 @@ This is a conditional claim about adaptation under deadlines. It is not an endor
 1. **Necessity as a kernel condition.** Acceleration is necessary exactly when some attainable rate ceiling keeps the system viable and the current rate does not (II.4). In terms of the required rate, this means the required rate exceeds the current one, provided the required rate is actually attained.
 2. **Delay cannot restore viability under an unchanged ceiling.** Along the incumbent trajectory, and before its first violation, any rate ceiling at or above the current rate that suffices after a year of delay already sufficed before. Once the required rate exceeds the current one, it can only rise while the system waits (Proposition II.1, proved in Lean).
 3. **Which acceleration matters depends on which constraint binds.** In the calibrated climate model, cost and spending dominate when costs are high. At lower costs, additional spending buys fewer years because capacity growth and the carbon budget constrain the window (II.2).
-4. **The dilemma is about program design, not just speed.** Acceleration without a stopping rule consumes its own margin and closes the window earlier. The same acceleration with a stopping rule does not (II.6).
+4. **The dilemma is about program design, not just speed.** Acceleration without a stopping rule consumes its own margin and closes the window earlier. The same acceleration with a stopping rule does not (II.6). When ramp-up costs are convex, a stopping-rule program also acquires an upper rate limit, but in the tested cases that limit lies far above the required rate.
 
 Claims 1 and 2 are general results within the framework. Claims 3 and 4 are findings of a calibrated, stylized model, and are conditional on its assumptions.
 
@@ -311,13 +311,32 @@ The outline's condition becomes a non-emptiness condition. For one-parameter fam
 | 3.0 | grow while capacity binds | 5%–**63%** | 2040 |
 | 3.0 | grow forever | 5%–**8%** | 2034 |
 
-**Acceleration with no stopping rule overbuilds.** Programs that keep growing capacity long after it can be used develop an upper rate limit, and their windows close two to six years earlier. Their overbuilt capacity diverts spending from deployment. The same acceleration with a stopping rule shows no upper limit within the tested range (up to 100%/yr) at moderate capacity costs. That does not establish that none exists beyond it.
+**Acceleration with no stopping rule overbuilds.** Programs that keep growing capacity long after it can be used develop an upper rate limit, and their windows close two to six years earlier. Their overbuilt capacity diverts spending from deployment. The same acceleration with a stopping rule shows no upper limit within the tested range (up to 100%/yr) at moderate capacity costs. That does not establish that none exists beyond it, and it depends on capacity costs being linear in the order (E-II.6 below).
 
 **Start date and compounding.** At $`c_{\mathrm{cap}}=0.3`$, the grow-forever program succeeds from 2027 at tested rates of 5–13%. From 2038, 15% works. A program started later has fewer years in which accumulated capacity orders can exhaust spending. Proposition II.1 concerns the full class of schedules allowed under a ceiling. A prescribed grow-forever rule can gain viability with delay.
 
 Selective acceleration therefore has two parts: **which** capabilities to accelerate (II.2: the binding ones) and **when to stop** (E-II.2). The dilemma is a question of program design as much as of speed.
 
-The model does not include acceleration costs that act on the viability constraint directly. Examples are embodied emissions from building capacity, or rebound effects in which efficiency raises demand (Jevons). These would add further upper limits. They are left as extensions.
+**Experiment E-II.6: acceleration costs that grow with speed.** E-II.2 charges every capacity order the same unit cost. Two extensions make speed itself costly. Both are off in every other experiment.
+
+- **Convex ramp premium.** Let $`u_t=x_t/D_t`$ be the capacity growth rate an order implies. When $`u_t`$ exceeds a knee $`\bar g=10\%`$/yr, the order costs $`c_{\mathrm{cap}}x_t(u_t/\bar g)^{\alpha-1}`$ instead of $`c_{\mathrm{cap}}x_t`$. $`\alpha=1`$ is the model of E-II.2.
+- **Embodied emissions.** Capacity spending emits $`e`$ GtCO₂ per <span>$</span>T, counted against the carbon budget. $`e=0.3`$ is about the average CO₂ intensity of world output (assumed, not sourced here); 1 and 3 are stress values.
+
+Viable constant rates from 2027 and the closing year, for the program that stops when capacity no longer binds. Settings as in E-II.2.
+
+| $`c_{\mathrm{cap}}`$ | Linear ($`\alpha=1`$) | $`\alpha=2`$ | $`\alpha=3`$ | Embodied, $`e=3`$ |
+|---|---|---|---|---|
+| 0.3 | 5%–100%, 2040 | 5%–**87%**\*, 2040 | 5%–**38%**, 2040 | 5%–100%, 2040 |
+| 1.0 | 5%–100%, 2040 | 5%–**44%**, 2040 | 5%–**25%**, 2039 | 5%–100%, 2040 |
+| 3.0 | 5%–63%, 2040 | 5%–**24%**, 2039 | 5%–**18%**, 2038 | 6%–63%, 2039 |
+
+\* 75% fails, so the viable set is not an interval: at that rate one order is unaffordable in 2032.
+
+- **Convex ramp costs give the stopping-rule program a real upper limit.** At $`c_{\mathrm{cap}}=1`$, $`r_{\max}`$ falls from the top of the scan to 44% at $`\alpha=2`$ and to 25% at $`\alpha=3`$. The binding event is an order whose premium exhausts the year's spending ceiling. In every tested case the limit lies far above the lowest viable rate (5–6%), so the window of programs stays nonempty. The closing year moves by at most two years (2040 to 2038 at $`c_{\mathrm{cap}}=3`$, $`\alpha=3`$).
+- **Embodied emissions penalize overbuilding, not speed.** A stopping rule bounds the total capacity built by what can be used, so even $`e=3`$ barely moves its window. Without a stopping rule they are decisive. At $`c_{\mathrm{cap}}=1`$ and $`e=1`$ the grow-forever window closes in 2031 instead of 2036. At $`c_{\mathrm{cap}}=3`$ and $`e=1`$ only 6%/yr is viable from 2027, and at $`e=3`$ no tested rate is.
+- **These are limits on prescribed programs, not on the class.** Under a ceiling, a program may always order less than the ceiling allows, so raising the ceiling never shrinks the kernel (`rate_upward`). Upper rate limits belong to program designs, which is the point of this section.
+
+The full output is in `argII_ramp_output.txt`, produced by `argII ramp` and cross-checked against `experiments_ii.py ramp`. Two acceleration costs remain outside the model: rebound effects in which efficiency raises demand (Jevons), and learning-by-doing (Wright's law). Learning lowers costs as deployment accumulates, so it can only loosen an upper rate limit.
 
 ## II.7. The physical-atom constraint
 
@@ -449,5 +468,5 @@ Neither theorem uses `sorry` or `native_decide`. `rate_upward` depends on no axi
 
 ## Code and reproducibility
 
-- **Lean 4 project:** `Theory.lean` (`delay_never_lowers_required_rate`, `rate_upward`, `greedy_suffices`), `Climate.lean` (model, kernels, certificate), and `ArgIIMain.lean` (E-II.2, E-II.3, monotonicity check).
+- **Lean 4 project:** `Theory.lean` (`delay_never_lowers_required_rate`, `rate_upward`, `greedy_suffices`), `Climate.lean` (model, kernels, certificate, and the optional ramp premium and embodied emissions of E-II.6), and `ArgIIMain.lean` (E-II.2, E-II.3, monotonicity check; `argII ramp` prints E-II.6 to `argII_ramp_output.txt`).
 - **Python reference:** `python/experiments_ii.py`. Every Argument II result was reproduced line for line by the Lean build on the author's machine (`argII_output.txt`, `RUN_LOG.md`).

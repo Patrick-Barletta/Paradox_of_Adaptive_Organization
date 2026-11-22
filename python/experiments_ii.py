@@ -154,16 +154,38 @@ def lean_lines():
     for psi, nz, thr in thresholds():
         yield f"THR psi={f6(psi)} requireNZ={'true' if nz else 'false'} threshold={'none' if thr is None else f6(thr)}"
 
-MODES = ("all", "sens", "dil", "ai", "mono", "abl", "thr", "lean")
+# ---------- E-II.6: acceleration costs: convex ramp premium and embodied emissions ----------
+RAMP_CFGS = [(1.0, 0.0), (2.0, 0.0), (3.0, 0.0), (1.0, 0.3), (1.0, 1.0), (1.0, 3.0), (2.0, 1.0)]
+
+def ramp_lines():
+    """What `argII ramp` prints (results/argII_ramp_output.txt), line for line."""
+    yr = lambda t: "never" if t < 0 else str(2027 + t)
+    pct = lambda r: "none" if r is None else f"{round(r * 100)}%"
+    f6 = lambda x: f"{x:.6f}"
+    yield "E-II.6 acceleration costs (2.0C central, psi 0.5, phi 2, L 2; ramp premium above 10%/yr capacity growth)"
+    for ccap in (0.3, 1.0, 3.0):
+        for alpha, emb in RAMP_CFGS:
+            p = P(psi=0.5, phi=2.0, budget=1035.0, ccap=ccap, alpha=alpha, emb_i=emb)
+            b = baseline(p)
+            for name, mk in (("stop when not binding", lambda r: grow(p, r)), ("never stop", unthrottled)):
+                w = window_rates(p, b[0], mk)
+                close = pnr_rule(p, b, lambda s: any(run(p, s, mk(r))[0] for r in rgrid(p)))
+                yield (f"RAMP ccap={f6(ccap)} alpha={f6(alpha)} emb={f6(emb)} program={name} "
+                       f"rmin={pct(min(w) if w else None)} rmax={pct(max(w) if w else None)} count={len(w)} close={yr(close)}")
+
+MODES = ("all", "sens", "dil", "ai", "mono", "abl", "thr", "lean", "ramp")
 
 if __name__ == "__main__":
-    # Usage: experiments_ii.py [all|sens|dil|ai|mono|abl|thr|lean]
+    # Usage: experiments_ii.py [all|sens|dil|ai|mono|abl|thr|lean|ramp]
     #   lean  prints exactly what the Lean executable prints, for comparison with results/argII_output.txt
+    #   ramp  prints E-II.6 exactly as `argII ramp` does (results/argII_ramp_output.txt)
     which = sys.argv[1] if len(sys.argv) > 1 else "all"
     if which not in MODES:
         sys.exit("usage: experiments_ii.py [" + "|".join(MODES) + "]")
     if which == "lean":
         for line in lean_lines(): print(line, flush=True)
+    if which == "ramp":
+        for line in ramp_lines(): print(line, flush=True)
     if which in ("all", "sens"):
         print("E-II.1 sensitivity of the 2.0C capacity-building closing year to one step along each axis")
         for k, v in sensitivity().items():

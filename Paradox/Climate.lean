@@ -49,6 +49,10 @@ structure CP where
   ai30 : Float := 0.0       -- extra emissions from AI data-centre demand in 2030, Gt/yr
   ai35 : Float := 0.0       -- ... in 2035 (linear ramps from 0 in 2026; flat after)
   requireNZ : Bool := true  -- viability also requires net zero by the terminal year
+  -- Acceleration-cost ablation (Argument II, E-II.6). The defaults reproduce the published model.
+  alpha : Float := 1.0      -- ramp-cost exponent: orders above gKnee * D cost ccap * (u / gKnee)^(alpha-1) per unit
+  gKnee : Float := 0.10     -- capacity growth rate u = x / D above which the ramp premium applies
+  embI : Float := 0.0       -- embodied emissions of capacity spending, GtCO2 per $T
   -- (no `deriving Repr`: deriving it for this many fields makes elaboration extremely slow)
 
 structure CS where
@@ -93,10 +97,17 @@ def fAffordable (p : CP) (f budgetT er : Float) : Float := Id.run do
 def spend (p : CP) (phi : Float) (t : Nat) : Float :=
   p.Y0 * phi * Float.pow (1 + p.gdp) t.toFloat
 
+/-- Spending on a capacity order x at capacity d, $T (linear unless lpha ≠ 1). -/
+def capex (p : CP) (d x : Float) : Float :=
+  if p.alpha == 1.0 then p.ccap * x else
+    let u := if d > 0 then x / d else 0.0
+    if u ≤ p.gKnee then p.ccap * x else p.ccap * x * Float.pow (u / p.gKnee) (p.alpha - 1.0)
+
 def step (p : CP) (s : CS) (x : Float) (capped : Bool := true) (fcap : Float := 1.0)
     (phi : Float) : Option CS :=
   let et := p.eref s.t * (1 - s.f)
-  let y := p.spend phi s.t - p.ccap * x
+  let cx := p.capex s.D x
+  let y := p.spend phi s.t - cx
   if y < -1e-12 then none else
     let er1 := p.eref (s.t + 1)
     let f2a := p.fAffordable s.f y er1
@@ -105,7 +116,8 @@ def step (p : CP) (s : CS) (x : Float) (capped : Bool := true) (fcap : Float := 
     let (d2, pipe2) := match s.pipe with
       | [] => (s.D + x, [])
       | h :: rest => (s.D + h, rest ++ [x])
-    some { t := s.t + 1, f := f2, C := s.C + et, D := d2, pipe := pipe2 }
+    let c2 := if p.embI == 0.0 then s.C + et else s.C + et + p.embI * cx
+    some { t := s.t + 1, f := f2, C := c2, D := d2, pipe := pipe2 }
 
 def need (p : CP) (s : CS) (fcap : Float) (phi : Float) : Float :=
   let y := p.spend phi s.t

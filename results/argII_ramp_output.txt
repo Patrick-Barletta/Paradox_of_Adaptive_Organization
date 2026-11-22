@@ -1,0 +1,43 @@
+E-II.6 acceleration costs (2.0C central, psi 0.5, phi 2, L 2; ramp premium above 10%/yr capacity growth)
+RAMP ccap=0.300000 alpha=1.000000 emb=0.000000 program=stop when not binding rmin=5% rmax=100% count=96 close=2040
+RAMP ccap=0.300000 alpha=1.000000 emb=0.000000 program=never stop rmin=5% rmax=13% count=9 close=2038
+RAMP ccap=0.300000 alpha=2.000000 emb=0.000000 program=stop when not binding rmin=5% rmax=87% count=82 close=2040
+RAMP ccap=0.300000 alpha=2.000000 emb=0.000000 program=never stop rmin=5% rmax=12% count=8 close=2037
+RAMP ccap=0.300000 alpha=3.000000 emb=0.000000 program=stop when not binding rmin=5% rmax=38% count=34 close=2040
+RAMP ccap=0.300000 alpha=3.000000 emb=0.000000 program=never stop rmin=5% rmax=12% count=8 close=2037
+RAMP ccap=0.300000 alpha=1.000000 emb=0.300000 program=stop when not binding rmin=5% rmax=100% count=96 close=2040
+RAMP ccap=0.300000 alpha=1.000000 emb=0.300000 program=never stop rmin=5% rmax=13% count=9 close=2036
+RAMP ccap=0.300000 alpha=1.000000 emb=1.000000 program=stop when not binding rmin=5% rmax=100% count=96 close=2040
+RAMP ccap=0.300000 alpha=1.000000 emb=1.000000 program=never stop rmin=5% rmax=13% count=9 close=2034
+RAMP ccap=0.300000 alpha=1.000000 emb=3.000000 program=stop when not binding rmin=5% rmax=100% count=96 close=2040
+RAMP ccap=0.300000 alpha=1.000000 emb=3.000000 program=never stop rmin=5% rmax=11% count=7 close=2032
+RAMP ccap=0.300000 alpha=2.000000 emb=1.000000 program=stop when not binding rmin=5% rmax=87% count=82 close=2040
+RAMP ccap=0.300000 alpha=2.000000 emb=1.000000 program=never stop rmin=5% rmax=12% count=8 close=2034
+RAMP ccap=1.000000 alpha=1.000000 emb=0.000000 program=stop when not binding rmin=5% rmax=100% count=96 close=2040
+RAMP ccap=1.000000 alpha=1.000000 emb=0.000000 program=never stop rmin=5% rmax=10% count=6 close=2036
+RAMP ccap=1.000000 alpha=2.000000 emb=0.000000 program=stop when not binding rmin=5% rmax=44% count=40 close=2040
+RAMP ccap=1.000000 alpha=2.000000 emb=0.000000 program=never stop rmin=5% rmax=10% count=6 close=2036
+RAMP ccap=1.000000 alpha=3.000000 emb=0.000000 program=stop when not binding rmin=5% rmax=25% count=21 close=2039
+RAMP ccap=1.000000 alpha=3.000000 emb=0.000000 program=never stop rmin=5% rmax=10% count=6 close=2036
+RAMP ccap=1.000000 alpha=1.000000 emb=0.300000 program=stop when not binding rmin=5% rmax=100% count=96 close=2040
+RAMP ccap=1.000000 alpha=1.000000 emb=0.300000 program=never stop rmin=5% rmax=10% count=6 close=2034
+RAMP ccap=1.000000 alpha=1.000000 emb=1.000000 program=stop when not binding rmin=5% rmax=100% count=96 close=2040
+RAMP ccap=1.000000 alpha=1.000000 emb=1.000000 program=never stop rmin=5% rmax=10% count=6 close=2031
+RAMP ccap=1.000000 alpha=1.000000 emb=3.000000 program=stop when not binding rmin=5% rmax=100% count=96 close=2040
+RAMP ccap=1.000000 alpha=1.000000 emb=3.000000 program=never stop rmin=6% rmax=7% count=2 close=2027
+RAMP ccap=1.000000 alpha=2.000000 emb=1.000000 program=stop when not binding rmin=5% rmax=44% count=40 close=2040
+RAMP ccap=1.000000 alpha=2.000000 emb=1.000000 program=never stop rmin=5% rmax=10% count=6 close=2031
+RAMP ccap=3.000000 alpha=1.000000 emb=0.000000 program=stop when not binding rmin=5% rmax=63% count=59 close=2040
+RAMP ccap=3.000000 alpha=1.000000 emb=0.000000 program=never stop rmin=5% rmax=8% count=4 close=2034
+RAMP ccap=3.000000 alpha=2.000000 emb=0.000000 program=stop when not binding rmin=5% rmax=24% count=20 close=2039
+RAMP ccap=3.000000 alpha=2.000000 emb=0.000000 program=never stop rmin=5% rmax=8% count=4 close=2034
+RAMP ccap=3.000000 alpha=3.000000 emb=0.000000 program=stop when not binding rmin=5% rmax=18% count=14 close=2038
+RAMP ccap=3.000000 alpha=3.000000 emb=0.000000 program=never stop rmin=5% rmax=8% count=4 close=2034
+RAMP ccap=3.000000 alpha=1.000000 emb=0.300000 program=stop when not binding rmin=5% rmax=63% count=59 close=2040
+RAMP ccap=3.000000 alpha=1.000000 emb=0.300000 program=never stop rmin=6% rmax=8% count=3 close=2031
+RAMP ccap=3.000000 alpha=1.000000 emb=1.000000 program=stop when not binding rmin=5% rmax=63% count=59 close=2040
+RAMP ccap=3.000000 alpha=1.000000 emb=1.000000 program=never stop rmin=6% rmax=6% count=1 close=2027
+RAMP ccap=3.000000 alpha=1.000000 emb=3.000000 program=stop when not binding rmin=6% rmax=63% count=58 close=2039
+RAMP ccap=3.000000 alpha=1.000000 emb=3.000000 program=never stop rmin=none rmax=none count=0 close=never
+RAMP ccap=3.000000 alpha=2.000000 emb=1.000000 program=stop when not binding rmin=5% rmax=24% count=20 close=2038
+RAMP ccap=3.000000 alpha=2.000000 emb=1.000000 program=never stop rmin=6% rmax=6% count=1 close=2027

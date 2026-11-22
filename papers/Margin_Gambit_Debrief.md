@@ -122,7 +122,7 @@ Status reflects a check against the drafts in `papers/` (Argument I, II and III 
   2. **Self-inflicted deadlines.** The locked-in agent supplied most of the burden itself. A's "hold off" option delayed the flip by only one tick.
 - **Fix:** a two-player viability-kernel game on the shared burden. A testable prediction follows: firms that have finished transitioning should push for faster shared deadlines (regulation, standards, capacity), while incumbents should not see their own contribution to the clock.
 
-### W3. Robust optimization over a finite threat set undervalues cycle-breaking seeds. *Status: partial. Candidate lemma.*
+### W3. Robust optimization over a finite threat set undervalues cycle-breaking seeds. *Status: resolved (2026-11-22). The lemma is proved in `Paradox/Theory.lean` (`robust_seed_value`, `robust_never_picks_seed`, `seed_example`) and cited in Argument I §I.4.3 and Argument III §III.6.*
 
 - **Exposed by:** tick 4. Black-Start lost on every branch of A's minimax solver because the cold-load lock was outside the modeled threat set. It was the decisive missing capability one tick later.
 - **In the drafts:** Argument I §I.4.3 cites Carlson & Doyle's "robust yet fragile" structure. Argument III identifies minimum seed sets with minimum directed feedback vertex sets (Theorem III.3), and §III.6 shows a black-start hydro unit restoring 7 of 7 while added redundancy restores nothing.
@@ -192,7 +192,7 @@ def capV (s : Nat) : Prop := s ≠ 2
 
 ## 4. Proposed work items, in priority order
 
-1. **W3 lemma (seed undervaluation).** State and prove it. This bridges Argument I §I.4.3 and Argument III §III.6, and justifies restoration independence as a structural constraint.
+1. ~~**W3 lemma (seed undervaluation).**~~ Done 2026-11-22 (see W3).
 2. ~~**W4 counterexample (capability-indexed reactions).**~~ Done 2026-11-22 (see W4).
 3. ~~**W1 condition.**~~ Done 2026-11-22: skill decay and a training cost were added to the settlement model, with a viability shield and "acquire first" rules (see W1).
 4. **W2 extension.** Formulate the two-player shared-burden kernel game. Derive the asymmetric-deadline incentive and the self-inflicted-deadline result.

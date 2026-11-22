@@ -22,7 +22,10 @@ try {
         cmd /c "`"$bin\$exe.exe`" > ${exe}_output.txt"
         if ($LASTEXITCODE -ne 0) { Write-Error "$exe failed with exit code $LASTEXITCODE"; exit $LASTEXITCODE }
     }
-    # Demonstration III.C (timed bootstrap) is printed only on request and saved separately.
+    # Demonstration III.C (timed bootstrap) and experiment E-II.6 (acceleration costs) are printed
+    # only on request and saved separately.
+    cmd /c "`"$bin\argII.exe`" ramp > argII_ramp_output.txt"
+    if ($LASTEXITCODE -ne 0) { Write-Error "argII ramp failed with exit code $LASTEXITCODE"; exit $LASTEXITCODE }
     cmd /c "`"$bin\argIII.exe`" C > argIII_timed_output.txt"
     if ($LASTEXITCODE -ne 0) { Write-Error "argIII C failed with exit code $LASTEXITCODE"; exit $LASTEXITCODE }
 } finally {

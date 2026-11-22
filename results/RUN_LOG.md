@@ -1,5 +1,16 @@
 # Build and verification log
 
+## Seed undervaluation (W3) and acceleration costs (E-II.6), 22 November 2026
+
+Windows, Lean 4.15.0. Added the W3 lemmas to `Paradox/Theory.lean`, optional acceleration costs to `Paradox/Climate.lean` and `python/climate.py` (off by default), and the `argII ramp` option.
+
+| Verification | Result |
+|---|---|
+| Axioms | `robust_seed_value`, `robust_never_picks_seed`, `robust_seed_nonpos`: `propext`, `Quot.sound`. `seed_example`: none. No `sorry`, no `native_decide`. |
+| No regression | `.\run_all.ps1` rebuilt everything. All ten previously saved outputs (TXT and CSV, including `argIII_timed_output.txt`) are byte-identical (SHA-256) to the committed versions. E-II.6 is printed only by `argII ramp`, so `argII_output.txt` is unchanged. |
+| New output | `argII_ramp_output.txt` (43 lines). The stopping-rule program acquires an upper rate limit under a convex ramp premium (at capacity cost 1: 44% with exponent 2, 25% with exponent 3). The window stays nonempty, and the closing year moves by at most two years. Embodied emissions barely affect the stopping-rule program but close the grow-forever window early. |
+| Python comparisons | `python python/crosscheck_all.py`: exit 0 in 493 s, with zero mismatches in all ten comparisons, including the new `ramp` check against `experiments_ii.py ramp`. |
+
 ## Timed bootstrap (Demonstration III.C), 22 November 2026
 
 Windows, Lean 4.15.0. Added `Paradox/Timed.lean` and the `argIII C` option.
