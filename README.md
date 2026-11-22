@@ -14,6 +14,8 @@ Three linked arguments about how adaptive systems lose, and can sometimes regain
 
 [Prior art and positioning](papers/Prior_Art_and_Positioning.md) maps each argument to its closest published precedents, with theorem and figure locators and suggested wording for an introduction. The [BibTeX bibliography](papers/prior_art.bib) can be imported into a reference manager. The [citation check](papers/Citation_Check.md) records which references and pinpoint locators have been verified against their sources, and which are still to be fixed or checked by hand.
 
+[The Margin Gambit](papers/Margin_Gambit_Debrief.md) is a red-team appendix: the debrief of a two-operator stress-test game played against the framework, the weaknesses it exposed, and the status of each. Two of its proposed work items (the capability-indexed counterexample and the friction sweep) are now part of the repository.
+
 ## What is machine-checked
 
 | File | What it is | Trust level |
@@ -42,7 +44,7 @@ Paradox.lean      library root
 *Main.lean, Report.lean, ExperimentE.lean
                   executables (targets: report, experimentE, climate, argII, argIII, friction)
 papers/           the three arguments (Markdown and PDF), the climate experiment write-up,
-                  prior art, bibliography and citation check
+                  prior art, bibliography, citation check and red-team debrief
 results/          saved output of every executable, plus the build and run log
 python/           Python reference for the climate model and Argument II
 python/toy/       Python reference for the settlement model (I.3.10) and Argument III
