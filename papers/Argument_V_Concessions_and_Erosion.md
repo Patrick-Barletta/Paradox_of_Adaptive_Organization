@@ -144,6 +144,8 @@ Argument V adds time variation to the framework's two fixed elements, the horizo
 | **III. The Escape** | How can a system find a viable transition before the window closes? | Escape is PSPACE-hard in general but tractable under structure; lock-in requires organizational certificates |
 | **V. Concessions and Erosion** | What changes when the horizon or the margin rule varies? | Concessions reverse with the horizon; calm erodes empirical margins until an identical shock becomes fatal |
 
+Argument IV is not part of this public release. The numbering is kept so that cross-references stay stable.
+
 ## References
 
 - Minsky, H. P. (1977). The financial instability hypothesis: an interpretation of Keynes and an alternative to "standard" theory. *Challenge* 20(1), 20–27. [DOI](https://doi.org/10.1080/05775132.1977.11470296)

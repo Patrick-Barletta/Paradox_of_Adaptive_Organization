@@ -12,6 +12,8 @@ Linked arguments about how adaptive systems lose, and can sometimes regain, the 
 | V | [**Concessions and Erosion**](papers/Argument_V_Concessions_and_Erosion.md) | A structural concession that survives now can become fatal as the horizon lengthens, and a safety margin set from recent experience erodes during calm until an identical shock becomes fatal. |
 | VI | [**The Escape Ratchet**](papers/Argument_VI_The_Escape_Ratchet.md) | Repeated, locally successful patching escapes accumulate serial recovery latency until no organizational escape fits the deadline, although a physical one may; early pruning or an independent startup path prevents it. |
 
+Argument IV is not part of this public release. The numbering is kept so that cross-references stay stable.
+
 [preprint/](preprint/) holds a single unified preprint of all three arguments (LaTeX source, about 20 pages; see [preprint/README.md](preprint/README.md) to build it).
 
 [Climate_Experiment.md](papers/Climate_Experiment.md) applies Arguments I and II to a calibrated, stylized climate model. Its results are conditional on the model and are not a forecast.

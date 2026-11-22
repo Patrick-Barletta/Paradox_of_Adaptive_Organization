@@ -162,6 +162,8 @@ Successful short-term escape consumes the feasibility of future escape when each
 | **V. Concessions and Erosion** | What changes when the horizon or the margin rule varies? | Concessions reverse with the horizon; calm erodes empirical margins until an identical shock becomes fatal |
 | **VI. The Escape Ratchet** | When does successful escape consume future escape? | Serial latency accumulated by patching exhausts a bounded deadline; early pruning or an independent seed prevents it |
 
+Argument IV is not part of this public release. The numbering is kept so that cross-references stay stable.
+
 ## References
 
 - Gunderson, L. H., and C. S. Holling (eds.) (2002). *Panarchy: Understanding Transformations in Human and Natural Systems*. Island Press. [DOI](https://doi.org/10.2307/jj.41003716)
