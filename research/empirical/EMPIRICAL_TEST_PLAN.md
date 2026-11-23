@@ -128,4 +128,12 @@ Phases follow the execution spec. A case whose records cannot support identifica
 
 ## Amendments
 
-(none)
+Added after evidence collection began. None of them changes a claim, metric, minimum-evidence requirement or rejection criterion above.
+
+1. **2026-11-22, severity labels (clarification of Section 3).** Section 2 provides three severity labels. They are applied as follows in every case:
+   - **ruled out**, when a necessary condition of Section 3 is positively contradicted by evidence (for example, the organization that declined the alternative is documented as holding the authority to take it, so no organizational restriction excluded it);
+   - **not identifiable**, when evidence for a condition is missing.
+
+   Section 3's sentence "Failing any item, severity is not identifiable" is read as covering the missing-evidence case.
+2. **2026-11-22, gap recorded (Case D).** Case D requires "a pre-specified disturbance measure" but this plan does not name one. No measure was chosen afterwards. The quantitative test was stopped under the Case D stopping rule before any disturbance measure was needed, because no pre-crisis margin series was available. A future test must fix the measure in an amendment before any data are examined.
+3. **2026-11-22, ledger schema.** The source ledgers keep the thirteen pre-registered columns and add a fourteenth, `question`, naming the extraction question each row answers. `evidence_group` holds CONTEMPORANEOUS or RETROSPECTIVE per fact.

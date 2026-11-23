@@ -1,0 +1,6 @@
+A Boeing 737 MAX: 62 rows; evidence groups {'CONTEMPORANEOUS': 24, 'RETROSPECTIVE': 38}; confidence {'high': 59, 'medium': 3}
+B 2003 blackout: 73 rows; evidence groups {'CONTEMPORANEOUS': 33, 'RETROSPECTIVE': 40}; confidence {'high': 68, 'medium': 5}
+C CrowdStrike 2024: 52 rows; evidence groups {'RETROSPECTIVE': 52}; confidence {'high': 39, 'low': 4, 'medium': 9}
+D Financial crisis: 55 rows; evidence groups {'CONTEMPORANEOUS': 3, 'RETROSPECTIVE': 52}; confidence {'high': 47, 'medium': 8}
+E NASA: 62 rows; evidence groups {'CONTEMPORANEOUS': 34, 'RETROSPECTIVE': 28}; confidence {'high': 60, 'high (quote); conflict flagged': 1, 'medium-high': 1}
+total: 304 rows
