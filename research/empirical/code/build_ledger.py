@@ -59,18 +59,20 @@ def main():
         summary.append(f"{name}: {len(body)} rows; evidence groups {dict(sorted(groups.items()))}; "
                        f"confidence {dict(sorted(conf.items()))}")
     with io.open(ROOT / "SOURCE_LEDGER.csv", "w", encoding="utf-8", newline="") as fh:
-        w = csv.writer(fh)
+        w = csv.writer(fh, lineterminator="\n")   # LF, matching .gitattributes, so hashes survive checkout
         w.writerow(["case"] + COLUMNS)
         w.writerows(merged)
     summary.append(f"total: {len(merged)} rows")
-    (ROOT / "ledger_summary.txt").write_text("\n".join(summary) + "\n", encoding="utf-8")
+    with io.open(ROOT / "ledger_summary.txt", "w", encoding="utf-8", newline="\n") as fh:
+        fh.write("\n".join(summary) + "\n")
     print("\n".join(summary))
 
     lines = []
     for p in sorted(ROOT.rglob("*")):
         if p.is_file() and p.name != "MANIFEST.txt" and "__pycache__" not in p.parts:
             lines.append(f"{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.relative_to(ROOT).as_posix()}")
-    (ROOT / "MANIFEST.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    with io.open(ROOT / "MANIFEST.txt", "w", encoding="utf-8", newline="\n") as fh:
+        fh.write("\n".join(lines) + "\n")
     print(f"manifest: {len(lines)} files")
 
 
